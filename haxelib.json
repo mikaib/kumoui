@@ -1,0 +1,13 @@
+{
+    "contributors": [
+        "MKI (mikaib)"
+    ],
+    "version": "1.0.0",
+    "tags": ["ui", "gui", "immediate-mode", "debug", "debugging", "platform-agnostic", "cross-platform"],
+    "releasenote": "1.0",
+    "classPath": "source",
+    "dependencies": {},
+    "name": "kumoui",
+    "description": "KumoUI is a platform-agnostic, immediate-mode GUI library for Haxe.",
+    "url": "https://github.com/mikaib/kumoui"
+}
