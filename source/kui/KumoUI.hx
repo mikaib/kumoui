@@ -1,45 +1,120 @@
 package kui;
 
-import kui.util.Stack;
+import kui.demo.Demo;
 import haxe.PosInfos;
+import kui.FontType;
+import kui.Component;
 import kui.impl.Base;
+import kui.util.Stack;
 
 class KumoUI {
 
-    // Options
-    public static var debugDraw: Bool = false;
-
-    // Component lists
-    public static var currentComponents: Array<Component> = [];
-    public static var currentWantedComponents: Array<{ cl: Class<Component>, data: Dynamic, id: String, sameLine: Bool }> = [];
-
-    // Layout stuff
     public static var containerStack: Stack<Component> = new Stack<Component>();
-    public static var _sameLine: Bool = false;
+    public static var currentComponents: Array<Component> = [];
+    public static var toRender: Array<Component> = [];
+    public static var dataMap: Map<String, Dynamic> = [];
+    public static var currentComponentIndex: Int = 0;
+    public static var currentWindowIndex: Int = 1;
+    public static var focusedWindow: Null<Component> = null;
+    private static var impl: Base = null;
 
-    // Element focus
-    public static var lastHoveredElement: Component = null;
-    public static var previouslyClickedElement: Component = null;
+    // Input
+    public static var lastHovered: Null<Component> = null;
+    public static var lastClicked: Null<Component> = null;
+    public static var mouseWasDown: Bool = false;
 
-    // Add a component to the current wanted components list
+    // Debug draw
+    public static var debugDraw: Bool = false;
+    public static function setDebugMode(mode: Bool) debugDraw = mode;
+
+    // Add component
     public static function addComponent(comp: Class<Component>, data: Dynamic) : Dynamic {
-        currentWantedComponents.push({ cl: ComponentRegistry.getComponent(comp), data: data, id: data?.id ?? null, sameLine: _sameLine });
+        var isNew = false;
+        if (currentComponents[currentComponentIndex] == null) {
+            currentComponents.push(Type.createInstance(comp, []));
+            debugLog('Creating new instance at index ${currentComponentIndex} of type ${Type.getClassName(comp)}');
+            isNew = true;
+        } else if (Type.getClassName(Type.getClass(currentComponents[currentComponentIndex])) != Type.getClassName(comp)) {
+            var found = false;
+            var id = data?.id;
 
-        var currentMatched = currentComponents[currentWantedComponents.length - 1];
-        _sameLine = false;
+            if (id != null) {
+                for (i in 0...currentComponents.length) {
+                    if (currentComponents[i].getId() == id) {
+                        var moved = currentComponents.splice(i, 1);
+                        currentComponents.insert(currentComponentIndex, moved[0]);
+                        found = true;
+                        debugLog('Component type mismatch, moving instance from index ${i} to index ${currentComponentIndex} of type ${Type.getClassName(comp)}');
+                        break;
+                    }
+                }
+            }
 
-        if (currentMatched != null && currentMatched.getId() == currentWantedComponents[currentWantedComponents.length - 1].id) return currentMatched.getReturnValue();
-        return null;
+            if (!found) {
+                currentComponents.insert(currentComponentIndex, Type.createInstance(comp, []));
+                debugLog('Component type mismatch, creating new instance at index ${currentComponentIndex} of type ${Type.getClassName(comp)}');
+                isNew = true;
+            }
+        } else if (currentComponents[currentComponentIndex].getId() != data?.id) {
+            if (currentComponents[currentComponentIndex].getId() != null && currentComponents[currentComponentIndex].getSerializable()) {
+                var storedData = currentComponents[currentComponentIndex].onSerialize();
+                dataMap.set(currentComponents[currentComponentIndex].getId(), storedData);
+                debugLog('Serializing data for instance with id ${currentComponents[currentComponentIndex].getId()}, data: ${Std.string(storedData)}');
+            }
+
+            currentComponents[currentComponentIndex] = Type.createInstance(comp, []);
+            debugLog('Replacing instance at index ${currentComponentIndex} of type ${Type.getClassName(comp)}');
+            isNew = true;
+        }
+
+        var comp = currentComponents[currentComponentIndex];
+        comp.updateComputedPriority();
+        comp.setId(data?.id);
+
+        if (comp.getId() != null && isNew) {
+            var storedData = dataMap.get(comp.getId());
+            if (storedData != null) {
+                debugLog('Deserializing data for instance with id ${comp.getId()}, data: ${Std.string(storedData)}');
+                comp.onDeserialize(storedData);
+            }
+        }
+
+        var ret: Dynamic = comp.onDataUpdate(data);
+        comp.setDataInteractable(data);
+        currentComponentIndex++;
+
+        comp.onLayoutUpdate(impl);
+        if (comp.isVisible()) toRender.push(comp);
+
+        return ret;
     }
 
     // Various elements
-    public static inline function beginWindow(title: String, ?id: String, ?x: Float, ?y: Float, ?width: Float, ?height: Float): Void addComponent(kui.components.Window, { title: title, id: id, x: x, y: y, width: width, height: height });
-    public static inline function endWindow(): Void addComponent(kui.components.ContainerEnd, null);
+    public static inline function showDemo(): Void Demo.use();
+    public static inline function separator(?color: Int, ?thickness: Int): Void addComponent(kui.components.Separator, { color: color, thickness: thickness });
+    public static inline function toggle(id: String, ?labelText: String, ?value: Bool, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType): Bool return addComponentBool(kui.components.Toggle, { id: id, text: labelText, size: labelSize, color: labelColor, font: labelType, value: value });
+    public static inline function sliderFloat(id: String, ?labelText: String, ?min: Float, ?max: Float, ?value: Float, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float) return addComponentFloat(kui.components.FloatSlider, { id: id, min: min, max: max, width: width, text: labelText, size: labelSize, color: labelColor, font: labelType, value: value });
+    public static inline function sliderInt(id: String, ?labelText: String, ?min: Int, ?max: Int, ?value: Int, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float) return addComponentInt(kui.components.IntSlider, { id: id, min: min, max: max, width: width, text: labelText, size: labelSize, color: labelColor, font: labelType, value: value });
+    public static inline function collapse(text: String, ?id: String, ?fontSize: Int, ?fontType: FontType): Bool return addComponentBool(kui.components.Collapse, { text: text, size: fontSize, font: fontType, id: id ?? text });
+    public static inline function sameLine(): Void Layout.beginSameLine();
     public static inline function text(text: String, ?color: Int, ?fontSize: Int, ?fontType: FontType): Void addComponent(kui.components.Text, { text: text, color: color, size: fontSize, font: fontType });
-    public static inline function button(text: String, ?fontSize: Int, ?fontType: FontType): Bool return addComponentBool(kui.components.Button, { text: text, size: fontSize, font: fontType });
-
-    // Layout stuff
-    public static inline function sameLine(): Void _sameLine = true;
+    public static inline function button(text: String, ?fontSize: Int, ?fontType: FontType, ?fullWidth: Bool): Bool return addComponentBool(kui.components.Button, { text: text, size: fontSize, font: fontType, fullWidth: fullWidth });
+    public static inline function beginTreeNode(text: String, ?id: String, ?fontSize: Int, ?fontType: FontType): Bool return addComponentBool(kui.components.TreeCollapse, { text: text, size: fontSize, font: fontType, id: id ?? text });
+    public static inline function endTreeNode(): Void addComponent(kui.components.TreeCollapseEnd, null);
+    public static inline function graph(points: Array<Float>, width: Float, height: Float, ?labelText: String, ?labelSize: Int, ?labelType: FontType): Void addComponent(kui.components.Graph, { points: points, width: width, height: height, text: labelText, size: labelSize, font: labelType });
+    public static inline function multiGraph(pointArrays: Array<{ points: Array<Float>, ?label: String, ?color: Int }>, ?width: Float, ?height: Float): Void addComponent(kui.components.MultiGraph, { pointArrays: pointArrays, width: width, height: height });
+    public static inline function inputText(id: String, ?labelText: String, ?placeholderText: String, ?value: String, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): String return addComponentString(kui.components.GenericInput, { id: id, label: labelText, placeholder: placeholderText, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
+    public static inline function inputInt(id: String, ?labelText: String, ?placeholderText: String, ?min: Int, ?max: Null<Int>, ?value: Null<Int>, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): Float return addComponentInt(kui.components.IntInput, { id: id, label: labelText, placeholder: placeholderText, min: min, max: max, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
+    public static inline function inputFloat(id: String, ?labelText: String, ?placeholderText: String, ?min: Null<Float>, ?max: Null<Float>, ?value: Float, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): Float return addComponentFloat(kui.components.FloatInput, { id: id, label: labelText, placeholder: placeholderText, min: min, max: max, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
+    public static inline function beginWindow(title: String, id: String, ?x: Float, ?y: Float, ?width: Float, ?height: Float): Void {
+        addComponent(kui.components.Window, { title: title, x: x, y: y, width: width, height: height, id: id});
+        addComponent(kui.components.ScrollableContainer, { scrollHeightOffset: Style.WINDOW_RESIZE_SIZE, id: 'scrollable.${id}' });
+        currentWindowIndex++;
+    }
+    public static inline function endWindow(): Void { 
+        addComponent(kui.components.ScrollableContainerEnd, null);
+        Layout.endParentContainer();
+    }
 
     // Variations of addComponent
     public static inline function addComponentInt(comp: Class<Component>, data: Dynamic): Int return addComponent(comp, data) ?? 0;
@@ -47,198 +122,155 @@ class KumoUI {
     public static inline function addComponentBool(comp: Class<Component>, data: Dynamic): Bool return addComponent(comp, data) ?? false;
     public static inline function addComponentString(comp: Class<Component>, data: Dynamic): String return addComponent(comp, data) ?? '';
 
+    // Parent container stuff
+    public static inline function getParent(): Component return containerStack.peek();
+    public static inline function hasParent(): Bool return !containerStack.isEmpty();
+    public static inline function getParentX(): Float return containerStack.peek()?.getBoundsX() ?? 0;
+    public static inline function getParentY(): Float return containerStack.peek()?.getBoundsY() ?? 0;
+    public static inline function getParentWidth(): Float return containerStack.peek()?.getBoundsWidth() ?? Layout.getScreenWidth();
+    public static inline function getParentHeight(): Float return containerStack.peek()?.getBoundsHeight() ?? Layout.getScreenHeight();
+    public static inline function getWindowPriorityWeight(comp: Component): Int return comp == focusedWindow ? 1000000 : currentWindowIndex * 1000;
+    public static inline function getInnerWidth(): Float return KumoUI.getParentWidth() - Style.GLOBAL_PADDING;
+    public static inline function getInnerHeight(): Float return KumoUI.getParentHeight() - Style.GLOBAL_PADDING;
+
     // Debug log
-    public static inline function debugLog(m: Dynamic, ?posInfo: PosInfos) Sys.println('[kui debug] (${posInfo.fileName}:${posInfo.lineNumber}) in ${posInfo.className}.${posInfo.methodName}: ${Std.string(m)}');
+    public static inline function debugLog(m: Dynamic, ?posInfo: PosInfos) return; //Sys.println('[kui debug] (${posInfo.fileName}:${posInfo.lineNumber}) in ${posInfo.className}.${posInfo.methodName}: ${Std.string(m)}');
 
-    // Push a container onto the container stack
-    public static function pushContainer(comp: Component) containerStack.push(comp);
-
-    // Various parent getters
-    public static function getParentX() {
-        var top = containerStack.peek();
-        return top != null ? top.boundsX : 0;
-    }
-
-    public static function getParentY() {
-        var top = containerStack.peek();
-        return top != null ? top.boundsY : 0;
-    }
-
-    public static function getParentWidth() {
-        var top = containerStack.peek();
-        return top != null ? top.boundsWidth : Layout.screenW;
-    }
-
-    public static function getParentHeight() {
-        var top = containerStack.peek();
-        return top != null ? top.boundsHeight : Layout.screenH;
-    }
-
-    public static function getParentClipX() {
-        var top = containerStack.peek();
-        return top != null ? top.clipX : 0;
-    }
-
-    public static function getParentClipY() {
-        var top = containerStack.peek();
-        return top != null ? top.clipY : 0;
-    }
-
-    public static function getParentClipWidth() {
-        var top = containerStack.peek();
-        return top != null ? top.clipWidth : Layout.screenW;
-    }
-
-    public static function getParentClipHeight() {
-        var top = containerStack.peek();
-        return top != null ? top.clipHeight : Layout.screenH;
-    }
-
-    // Update components
-    private static function updateComponents() {
-        var usedIds: Map<String, Bool> = new Map();
-        var i = 0;
-
-        for (wanted in currentWantedComponents) {
-            var wantedClassName = Type.getClassName(wanted.cl);
-            var wantedId = wanted.id;
-            var found = false;
-
-            // Try to find a matching component in currentComponents by ID
-            for (j in i...currentComponents.length) {
-                var current = currentComponents[j];
-                var currentClassName = Type.getClassName(Type.getClass(current));
-                var currentId = current.getId();
-
-                if (currentClassName == wantedClassName && currentId == wantedId) {
-                    // Match found, update component and mark as used
-                    current.update(wanted.data);
-                    current._sameLine = wanted.sameLine;
-                    usedIds.set(currentId, true);
-                    // Move matched component to the correct position
-                    if (i != j) {
-                        currentComponents.splice(j, 1);
-                        currentComponents.insert(i, current);
-                    }
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                // No match found, create new component and insert it in place
-                var newComponent = Type.createInstance(wanted.cl, [wanted.data]);
-                newComponent.update(wanted.data);
-                newComponent._sameLine = wanted.sameLine;
-                currentComponents.insert(i, newComponent);
-                if (wantedId != null) {
-                    usedIds.set(wantedId, true);
-                }
-                debugLog('Inserted new component: ${Type.getClassName(wanted.cl)} with ID: ${wantedId} at index: $i');
-            }
-            i++;
-        }
-
-        // Remove any components that are no longer wanted
-        while (i < currentComponents.length) {
-            var comp = currentComponents[i];
-            var compId = comp.getId();
-            if (compId == null || !usedIds.exists(compId)) {
-                currentComponents.splice(i, 1);
-                comp.destroy();
-                debugLog('Removed component: ${Type.getClassName(Type.getClass(comp))} with ID: ${compId}');
-            } else {
-                i++;
-            }
-        }
-    }
-
-    // Render the UI
-    public static function render(impl: Base, sw: Float, sh: Float) {
-        // Update screen bounds
-        Layout.updateScreenBounds(sw, sh);
-
-        // Run a diff to see if we need to insert/remove or update components
-        updateComponents();
-
-        // Render all components and update input
+    // Input utility functions
+    public static function getHoveredComponentOfType(impl: Base, cls: Class<Dynamic>, mustBeInteractable: Bool = true): Null<Component> {
         var mx = impl.getMouseX();
         var my = impl.getMouseY();
-
-        var hoveredElement: Component = null;
-
-        for (comp in currentComponents) { 
-
-            var parent = containerStack.peek();
-            var clipX = parent != null ? parent.clipX : 0;
-            var clipY = parent != null ? parent.clipY : 0;
-            var clipWidth = parent != null ? parent.clipWidth : Layout.screenW;
-            var clipHeight = parent != null ? parent.clipHeight : Layout.screenH;
-
-            if (parent != null) impl.setClipRect(clipX, clipY, clipWidth, clipHeight);
-            else impl.resetClipRect();
-
-            Layout.sameLine = comp._sameLine;
-            comp.render(impl);
-
-            if (debugDraw) impl.drawRectOutline(comp.boundsX, comp.boundsY, comp.boundsWidth, comp.boundsHeight, 0xff0000, 1);
-
-            if (comp.isInteractable()) {
-                var compX = comp.boundsX;
-                var compY = comp.boundsY;
-                var compW = comp.boundsWidth;
-                var compH = comp.boundsHeight;
-
-                if (mx >= compX && mx <= compX + compW && my >= compY && my <= compY + compH && comp.getPriority() > (hoveredElement?.getPriority() ?? -999)) {
-                    if (clipX == 0 && clipY == 0 && clipWidth == Layout.screenW && clipHeight == Layout.screenH) {
-                        hoveredElement = comp;
-                    } else {
-                        if (mx >= clipX && mx <= clipX + clipWidth && my >= clipY && my <= clipY + clipHeight) {
-                            hoveredElement = comp;
-                        }
-                    }
-                }
-                
+        var priority = -1;
+        var current = null;
+        for (i in currentComponents) {
+            if (i.pointInside(mx, my) && Type.getClass(i) == cls && i.getComputedPriority() > priority) {
+                if (mustBeInteractable && !i.getInteractable()) continue;
+                priority = i.getComputedPriority();
+                current = i;
             }
-
-            comp.postRender();
         }
-
-        // Update hover events
-        if (hoveredElement != lastHoveredElement) {
-            if (lastHoveredElement != null) lastHoveredElement.onMouseHoverExit(impl);
-            if (hoveredElement != null) hoveredElement.onMouseHoverEnter(impl);
-            lastHoveredElement = hoveredElement;
-        }
-
-        // Update click events
-        var down = impl.getLeftMouseDown();
-
-        if (down && previouslyClickedElement == null && hoveredElement != null) {
-            hoveredElement.onMouseDown(impl);
-            previouslyClickedElement = hoveredElement;
-        }
-
-        if (!down && previouslyClickedElement != null) {
-            if (hoveredElement == previouslyClickedElement) previouslyClickedElement.onMouseClick(impl);
-            previouslyClickedElement.onMouseUp(impl);
-            previouslyClickedElement = null;
-        }
-
-        // Clear the wanted components list
-        currentWantedComponents.resize(0);
-
-        // Reset layout
-        Layout.reset();
-
-        // Reset clip rect
-        impl.resetClipRect();
-
-        // Reset container stack
-        containerStack.clear();
+        return current;
     }
 
-    // Initialize the UI
-    public static function init() Layout.reset();
+    public static function getHoveredComponentAny(impl: Base, mustBeInteractable: Bool = true): Null<Component> {
+        var mx = impl.getMouseX();
+        var my = impl.getMouseY();
+        var priority = -1;
+        var current = null;
+        for (i in currentComponents) {
+            if (i.pointInside(mx, my) && i.getComputedPriority() > priority) {
+                if (mustBeInteractable && !i.getInteractable()) continue;
+                priority = i.getComputedPriority();
+                current = i;
+            }
+        }
+        return current;
+    }
 
+    // Render
+    public static function render() {
+        // Render components
+        toRender.sort(function(a, b) return a.getComputedPriority() - b.getComputedPriority());
+        for (comp in toRender) {
+            comp.applyClipToImpl(impl);
+            comp.onRender(impl);
+        }
+
+        // Scroll container
+        var scrollable = getHoveredComponentOfType(impl, kui.components.ScrollableContainer, false);
+        if (scrollable != null) {
+            var scrollDelta = impl.getScrollDelta();   
+            try { cast (scrollable, kui.components.ScrollableContainer).scroll(scrollDelta);
+            } catch(e) trace('Error casting to ScrollableContainer, this should not be able to happen?');
+        }
+
+        // Reset clip area
+        impl.resetClipRect();
+
+        // Check if debug draw is enabled, if so, we draw debugging information
+        if (debugDraw) drawDebuggingInformation(impl);
+
+		// Handle input
+		var currentlyHovered = getHoveredComponentAny(impl);
+		if (currentlyHovered != lastHovered) {
+			if (lastHovered != null) lastHovered.onMouseHoverExit(impl);
+			if (currentlyHovered != null) currentlyHovered.onMouseHoverEnter(impl);
+			lastHovered = currentlyHovered;
+		}
+
+		if (impl.getLeftMouseDown()) {
+            // down event
+			if (mouseWasDown) return;
+            if (currentlyHovered != lastClicked && lastClicked != null) {
+                lastClicked.onMouseClickOutside(impl);
+                lastClicked = null;
+            }
+
+            if (currentlyHovered != null) {
+                currentlyHovered.onMouseDown(impl);
+                lastClicked = currentlyHovered;
+            } else {
+                lastClicked = null;
+            }
+
+            // window focus
+            var window = getHoveredComponentOfType(impl, kui.components.Window, false);
+            if (window != null) focusedWindow = window;
+
+            mouseWasDown = true;
+		} else {
+			if (!mouseWasDown) return;
+            if (lastClicked != null) {
+                lastClicked.onMouseUp(impl);
+                if (lastClicked.pointInside(impl.getMouseX(), impl.getMouseY())) lastClicked.onMouseClick(impl);
+            }
+            mouseWasDown = false;
+		}
+    }
+
+    // Reset
+    public static function begin(width: Float, height: Float) {
+        // Reset layout
+        Layout.reset(width, height);
+
+        // Destroy unnecessary instances
+        if (currentComponentIndex < currentComponents.length) {
+            debugLog('Destroying instances from index ${currentComponentIndex} to ${currentComponents.length - 1}');
+            var toRemove = currentComponents.splice(currentComponentIndex, currentComponents.length - currentComponentIndex);
+            for (item in toRemove) {
+                debugLog('Destroying instance of type ${Type.getClassName(Type.getClass(item))}');
+                if (item.getId() != null && item.getSerializable()) {
+                    var data = item.onSerialize();
+                    dataMap.set(item.getId(), data);
+                    debugLog('Serializing data for instance with id ${item.getId()}, data: ${Std.string(data)}');
+                }
+                item.destroy(impl);
+            }
+        }
+
+        // Clear container stack
+        containerStack.clear();
+
+        // Reset indices
+        currentComponentIndex = 0;
+        currentWindowIndex = 1;
+
+        // Update component layout
+        toRender.resize(0);
+
+        // Reset input
+        KeyboardInput.beginFrame();
+    }
+
+    // Debugging information
+    public static function drawDebuggingInformation(impl: Base) {
+        for (comp in currentComponents) comp.onDebugDraw(impl);
+    }
+
+    // Init
+    public static function init(backend: Base, debugDraw: Bool = false) {
+        KumoUI.impl = backend;
+        KumoUI.debugDraw = debugDraw;
+    }
+    
 }

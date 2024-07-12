@@ -13,6 +13,8 @@ class RayLibImpl extends Base {
     public var font_bold: FontRef;
 
     public function new(regularFont: FontRef, boldFont: FontRef) {
+        super();
+
         this.font_regular = regularFont;
         this.font_bold = boldFont;
 
@@ -51,7 +53,7 @@ class RayLibImpl extends Base {
         std.RayLib.DrawRectangle(Std.int(x), Std.int(y), Std.int(width), Std.int(height), rlColor(color));
     }
 
-    override function drawRectOutline(x:Float, y:Float, width:Float, height:Float, color:Int, thickness:Float = 1) {
+    override function drawRectOutline(x:Float, y:Float, width:Float, height:Float, color:Int, thickness:Float = 1, roundness: Float = 0) {
         std.RayLib.DrawRectangleLinesEx(Rectangle.create(x, y, width, height), thickness, rlColor(color));
     }
 
@@ -72,6 +74,7 @@ class RayLibImpl extends Base {
     }
  
     // Kawaii-specific
+    public function begin() {}
     public function render() {
         KumoUI.render(this, std.RayLib.GetScreenWidth(), std.RayLib.GetScreenHeight());
     }

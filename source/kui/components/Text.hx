@@ -1,24 +1,27 @@
 package kui.components;
 
+import kui.util.TextStorage;
+import kui.impl.Base;
+
 class Text extends Component {
 
-    public var text: String = "";
-    public var font: FontType = FontType.REGULAR;
-    public var size: Int = 16;
-    public var color: Int = 0xffffff;
+    private var text: TextStorage = new TextStorage();
 
-    override function update(args:Dynamic) {
-        this.text = args.text ?? this.text;
-        this.font = args.font ?? this.font;
-        this.size = args.size ?? this.size;
-        this.color = args.color ?? this.color;
+    override function onRender(impl: Base) impl.drawText(text.getText(), getBoundsX(), getBoundsY(), text.getColor(), text.getSize(), text.getFont());
+
+    override function onDataUpdate(data: Dynamic): Dynamic {
+        text.text = data.text ?? text.text;
+        text.size = data.size ?? Style.TEXT_DEFAULT_SIZE;
+        text.font = data.font ?? Style.TEXT_DEFAULT_FONT;
+        text.color = data.color ?? Style.TEXT_DEFAULT_COLOR;
+        return null;
     }
 
-    override function render(impl:kui.impl.Base) {
-        var pos = Layout.getPosition();
-
-        impl.drawText(text, pos.x, pos.y, color, size, font);
-        updateAllBounds(pos.x, pos.y, impl.measureTextWidth(text, size, font), size);
+    override function onLayoutUpdate(impl: Base) {
+        useLayoutPosition();
+        setSize(text.getWidth(impl), text.getHeight(impl));
+        useBoundsClipRect();
+        submitLayoutRequest();
     }
 
 }
