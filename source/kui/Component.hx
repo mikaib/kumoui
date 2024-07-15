@@ -90,23 +90,39 @@ class Component {
     }
 
     public function setClipRect(x: Float, y: Float, width: Float, height: Float): Void {
-        // Set the clip rect for this component
         _stateClipX = x;
         _stateClipY = y;
         _stateClipWidth = width;
         _stateClipHeight = height;
-        
-        // If there is a parent container, we need to also take into account the parent's bounds
+    
         if (KumoUI.hasParent()) {
             var parent = KumoUI.getParent();
-            if (parent == this) return; // We don't want to clip to ourselves if we are the parent
-
-            _stateClipX = Math.max(x, parent.getClipX());
-            _stateClipY = Math.max(y, parent.getClipY());
-            _stateClipWidth = Math.max(0, Math.min(width, parent.getClipWidth() - Math.max(0, x - parent.getClipX())));
-            _stateClipHeight = Math.max(0, Math.min(height, parent.getClipHeight() - Math.max(0, y - parent.getClipY())));
+            if (parent == this) return; // we don't want this lol
+    
+            var parentClipX = parent.getClipX();
+            var parentClipY = parent.getClipY();
+            var parentClipWidth = parent.getClipWidth();
+            var parentClipHeight = parent.getClipHeight();
+    
+            // ensure that the clip rect is within the parent's clip rect, else it looks funky.
+            // i've reiterated on this multiple times... it's a bit of a mess.
+            _stateClipX = Math.max(x, parentClipX);
+            _stateClipY = Math.max(y, parentClipY);
+    
+            if (x < parentClipX) {
+                _stateClipWidth -= parentClipX - x;
+            }
+            if (y < parentClipY) {
+                _stateClipHeight -= parentClipY - y;
+            }
+    
+            var maxClipWidth = parentClipWidth - (_stateClipX - parentClipX);
+            var maxClipHeight = parentClipHeight - (_stateClipY - parentClipY);
+    
+            _stateClipWidth = Math.max(0, Math.min(_stateClipWidth, maxClipWidth));
+            _stateClipHeight = Math.max(0, Math.min(_stateClipHeight, maxClipHeight));
         }
-    }
+    }      
 
     public inline function isVisible() {
         if (

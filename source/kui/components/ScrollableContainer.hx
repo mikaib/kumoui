@@ -26,8 +26,9 @@ class ScrollableContainer extends Component {
         var parentHeight = KumoUI.getParentHeight();
         var fullHeight = parentHeight - yOff;
         fullWidth = parentWidth - xOff;
-        
+
         if (innerContentHeight > fullHeight && fullHeight > 0.1) {
+            setClipRect(pos.x, pos.y, fullWidth - Style.SCROLL_WIDTH - (Style.GLOBAL_PADDING * 2), fullHeight);
             beginParentContainer();
             setBounds(pos.x, pos.y, fullWidth - Style.SCROLL_WIDTH - (Style.GLOBAL_PADDING * 2), fullHeight);
             innerContentStartY = getBoundsY() - innerOffsetY;
@@ -37,6 +38,7 @@ class ScrollableContainer extends Component {
             innerOffsetY += Math.isNaN(da) ? 0 : da;
             enabled = true;
         } else {
+            setClipRect(pos.x, pos.y, fullWidth, fullHeight);
             beginParentContainer();
             setBounds(pos.x, pos.y, fullWidth, fullHeight);
             innerContentStartY = getBoundsY();
@@ -44,7 +46,6 @@ class ScrollableContainer extends Component {
         }        
 
         submitAbsolutePositioningRequest(getBoundsX(), innerContentStartY, 0, 0);
-        useBoundsClipRect();
     }
 
     override function onRender(impl:Base) {

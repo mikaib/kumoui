@@ -44,8 +44,8 @@ class MultiGraph extends Component {
         }
     
         // Ensure overallMinY and overallMaxY are properly defined
-        if (overallMinY == Math.POSITIVE_INFINITY) overallMinY = 0; // Handle the case where no points are defined
-        if (overallMaxY == Math.NEGATIVE_INFINITY) overallMaxY = 0; // Handle the case where no points are defined
+        if (overallMinY == Math.POSITIVE_INFINITY) overallMinY = 0;
+        if (overallMaxY == Math.NEGATIVE_INFINITY) overallMaxY = 0;
     
         var scaleY = h / (overallMaxY - overallMinY);
     

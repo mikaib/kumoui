@@ -69,6 +69,21 @@ class Style {
     public static inline final SLIDER_SELECTED_COLOR_ACTIVE: Int = 0xb4b4b4;
     public static inline final SLIDER_ROUNDING: Int = 10;
 
+    // Table
+    public static var TABLE_HEADER_BACKGROUND_COLOR: Int = 0x11141a;
+    public static var TABLE_HEADER_BACKGROUND_ROUNDING: Int = 5;
+    public static var TABLE_HEADER_TEXT_COLOR: Int = 0xffffff;
+    public static var TABLE_HEADER_TEXT_SIZE: Int = 16;
+    public static var TABLE_HEADER_TEXT_FONT: FontType = FontType.BOLD;
+    public static var TABLE_ROW_BACKGROUND_COLOR: Int = 0x191d26;
+    public static var TABLE_ROW_BACKGROUND_COLOR_ALT: Int = 0x11141a;
+    public static var TABLE_CONTENT_SHIFT: Int = 5;
+    public static var TABLE_ROW_BACKGROUND_ROUNDING: Int = 0;
+    public static var TABLE_LAST_ROW_BACKGROUND_ROUNDING: Int = 0;
+    public static var TABLE_ROW_TEXT_COLOR: Int = 0xffffff;
+    public static var TABLE_ROW_TEXT_SIZE: Int = 16;
+    public static var TABLE_ROW_TEXT_FONT: FontType = FontType.REGULAR;
+
     // Graph
     public static inline final GRAPH_BACKGROUND_COLOR: Int = 0x11141a;
     public static inline final GRAPH_INNER_PADDING: Int = 4;
@@ -113,8 +128,8 @@ class Style {
     // Tree Collapse
     public static inline final TREECOLLAPSE_TEXT_COLOR: Int = 0xffffff;
     public static inline final TREECOLLAPSE_TEXT_SIZE: Int = 16;
-    public static inline final TREECOLLAPSE_TEXT_FONT: FontType = FontType.BOLD;
-    public static inline final TREECOLLAPSE_TEXT_UPPERCASE: Bool = true;
+    public static inline final TREECOLLAPSE_TEXT_FONT: FontType = FontType.REGULAR;
+    public static inline final TREECOLLAPSE_TEXT_UPPERCASE: Bool = false;
     public static inline final TREECOLLAPSE_INDENT: Int = 16;
 
     // Separator
@@ -122,6 +137,11 @@ class Style {
     public static inline final SEPARATOR_THICKNESS: Int = 3;
     public static inline final SEPARATOR_ROUNDING: Int = 50; // This rounding value is as a percentage of the thickness
 
+    // Container
+    public static inline final CONTAINER_BACKGROUND_COLOR: Int = 0x11141a;
+    public static inline final CONTAINER_DEFAULT_HEIGHT: Float = 200;
+    public static inline final CONTAINER_ROUNDING: Int = 5;
+    
     // Animations
     public static inline final WINDOW_COLLAPSE_SPEED: Float = 25;
     public static inline final SCROLL_SPEED: Float = 25;

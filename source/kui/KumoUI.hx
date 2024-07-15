@@ -104,14 +104,23 @@ class KumoUI {
     public static inline function graph(points: Array<Float>, width: Float, height: Float, ?labelText: String, ?labelSize: Int, ?labelType: FontType): Void addComponent(kui.components.Graph, { points: points, width: width, height: height, text: labelText, size: labelSize, font: labelType });
     public static inline function multiGraph(pointArrays: Array<{ points: Array<Float>, ?label: String, ?color: Int }>, ?width: Float, ?height: Float): Void addComponent(kui.components.MultiGraph, { pointArrays: pointArrays, width: width, height: height });
     public static inline function inputText(id: String, ?labelText: String, ?placeholderText: String, ?value: String, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): String return addComponentString(kui.components.GenericInput, { id: id, label: labelText, placeholder: placeholderText, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
-    public static inline function inputInt(id: String, ?labelText: String, ?placeholderText: String, ?min: Int, ?max: Null<Int>, ?value: Null<Int>, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): Float return addComponentInt(kui.components.IntInput, { id: id, label: labelText, placeholder: placeholderText, min: min, max: max, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
+    public static inline function inputInt(id: String, ?labelText: String, ?placeholderText: String, ?min: Int, ?max: Null<Int>, ?value: Null<Int>, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): Int return addComponentInt(kui.components.IntInput, { id: id, label: labelText, placeholder: placeholderText, min: min, max: max, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
     public static inline function inputFloat(id: String, ?labelText: String, ?placeholderText: String, ?min: Null<Float>, ?max: Null<Float>, ?value: Float, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): Float return addComponentFloat(kui.components.FloatInput, { id: id, label: labelText, placeholder: placeholderText, min: min, max: max, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
+    public static inline function table(data: TableData, ?rowHeight: Int, ?headerHeight: Int): Void addComponent(kui.components.DataTable, { tableData: data, rowHeight: rowHeight, headerHeight: headerHeight });
+    public static inline function beginContainer(?height: Float, ?width: Float, ?bgColor: Int): Void {
+        addComponent(kui.components.Container, { containerHeight: height, containerWidth: width, backgroundColor: bgColor });
+        addComponent(kui.components.ScrollableContainer, { scrollHeightOffset: 0, id: 'scrollable.container${currentComponentIndex}' });
+    }
     public static inline function beginWindow(title: String, id: String, ?x: Float, ?y: Float, ?width: Float, ?height: Float): Void {
         addComponent(kui.components.Window, { title: title, x: x, y: y, width: width, height: height, id: id});
         addComponent(kui.components.ScrollableContainer, { scrollHeightOffset: Style.WINDOW_RESIZE_SIZE, id: 'scrollable.${id}' });
         currentWindowIndex++;
     }
     public static inline function endWindow(): Void { 
+        addComponent(kui.components.ScrollableContainerEnd, null);
+        Layout.endParentContainer();
+    }
+    public static inline function endContainer(): Void { 
         addComponent(kui.components.ScrollableContainerEnd, null);
         Layout.endParentContainer();
     }
