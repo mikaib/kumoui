@@ -113,8 +113,8 @@ class Style {
     // Tree Collapse
     public static inline final TREECOLLAPSE_TEXT_COLOR: Int = 0xffffff;
     public static inline final TREECOLLAPSE_TEXT_SIZE: Int = 16;
-    public static inline final TREECOLLAPSE_TEXT_FONT: FontType = FontType.BOLD;
-    public static inline final TREECOLLAPSE_TEXT_UPPERCASE: Bool = true;
+    public static inline final TREECOLLAPSE_TEXT_FONT: FontType = FontType.REGULAR;
+    public static inline final TREECOLLAPSE_TEXT_UPPERCASE: Bool = false;
     public static inline final TREECOLLAPSE_INDENT: Int = 16;
 
     // Separator
