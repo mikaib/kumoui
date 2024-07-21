@@ -129,10 +129,10 @@ class GenericInput extends Component {
         }
 
         impl.setClipRect(
-            getBoundsX() + Style.INPUT_PADDING,
-            getBoundsY(),
-            width - (Style.INPUT_PADDING * 2),
-            getBoundsHeight()
+            Math.max(getClipX(), getBoundsX() + Style.INPUT_PADDING),
+            Math.max(getClipY(), getBoundsY()),
+            Math.min(getClipWidth(), width - (Style.INPUT_PADDING * 2)),
+            Math.min(getClipHeight(), getBoundsHeight())
         );
 
         if (value.text == '') {
