@@ -23,6 +23,17 @@ class MathExprContext {
         setFunction("sin", (args) -> return Math.sin(args[0]), 1);
         setFunction("cos", (args) -> return Math.cos(args[0]), 1);
         setFunction("tan", (args) -> return Math.tan(args[0]), 1);
+        setFunction("asin", (args) -> return Math.asin(args[0]), 1);
+        setFunction("acos", (args) -> return Math.acos(args[0]), 1);
+        setFunction("atan", (args) -> return Math.atan(args[0]), 1);
+        setFunction("sqrt", (args) -> return Math.sqrt(args[0]), 1);
+        setFunction("abs", (args) -> return Math.abs(args[0]), 1);
+        setFunction("log", (args) -> return Math.log(args[0]), 1);
+        setFunction("floor", (args) -> return Math.floor(args[0]), 1);
+        setFunction("ceil", (args) -> return Math.ceil(args[0]), 1);
+        setFunction("round", (args) -> return Math.round(args[0]), 1);
+        setFunction("min", (args) -> return Math.min(args[0], args[1]), 2);
+        setFunction("max", (args) -> return Math.max(args[0], args[1]), 2);
     }
 
     public function setVariable(name: String, value: Float): Void {
