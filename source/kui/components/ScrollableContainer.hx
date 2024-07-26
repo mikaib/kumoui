@@ -45,7 +45,7 @@ class ScrollableContainer extends Component {
             enabled = false;
         }        
 
-        submitAbsolutePositioningRequest(getBoundsX(), innerContentStartY, 0, 0);
+        submitAbsolutePositioningRequest(getBoundsX(), Std.int(innerContentStartY), 0, 0);
     }
 
     override function onRender(impl:Base) {
