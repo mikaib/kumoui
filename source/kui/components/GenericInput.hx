@@ -33,7 +33,7 @@ class GenericInput extends Component {
         if (impl.getMouseX() <= getBoundsX() + width) {
             interactingWith = true;
 
-            if (mouseDraggingSelectionSize > 0) return;
+            if (Math.abs(mouseDraggingSelectionSize) > 0) return;
             caretGotoMouse(impl);
             selectionStart = caretPosition;
         } else {
