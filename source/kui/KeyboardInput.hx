@@ -2,16 +2,26 @@ package kui;
 
 class KeyboardInput {
 
+    // Current states (up/down)
     public static var keyStates: Map<Key, Bool> = new Map();
+
+    // last pressed / frame pressed keys
     public static var framePressedKeys: Array<Key> = [];
     public static var lastFrameDownKeys: Array<Key> = [];
+
+    // Repeat state
     public static var lastRepeatKey: Key = null;
     public static var lastRepeatTime: Float = 0;
+
+    // Config
     public static var repeatTime: Float = 0.05;
     public static var initialRepeatTime: Float = 0.45;
+
+    // Modifiers
     public static var shiftMod: Bool = false;
     public static var capsMod: Bool = false;
 
+    // The map which is responsible for mapping keys to their shifted versions, will not work for keyboards with a different layout
     private static var shiftLayerMap: Map<Key, Key> = [
         KEY_MINUS => KEY_UNDERSCORE,
         KEY_EQUALS => KEY_PLUS,
@@ -36,6 +46,11 @@ class KeyboardInput {
         KEY_0 => KEY_RIGHT_PARENTHESIS
     ];
 
+    /**
+     * Get a key with the current modifiers applied.
+     * @param key The key to get.
+     * @return Key The key with the modifiers applied.
+     */
     public static function getKeyWithModsApplied(key: Key): Key {
         if (!shiftMod && !capsMod) return key;
         else {
@@ -44,49 +59,96 @@ class KeyboardInput {
         }
     }
 
+    /**
+     * Report a key state.
+     * @param key The key that was down.
+     */
     public static function reportKey(key: Key) {
         if (framePressedKeys.indexOf(key) == -1 && key != null) {
             framePressedKeys.push(getKeyWithModsApplied(key));
         }
     }
 
+    /**
+     * Set the current shift state.
+     * @param state The state to set.
+     */
     public static function setCurrentShiftMod(state: Bool) {
         shiftMod = state;
     }
 
+    /**
+     * Set the current caps lock state.
+     * @param state The state to set.
+     */
     public static function setCurrentCapsMod(state: Bool) {
         capsMod = state;
     }
 
+    /**
+     * Get all keys that are currently down.
+     * @return Array<Key> The keys that are currently down.
+     */
     public static function getDownKeys(): Array<Key> {
         return framePressedKeys.copy();
     }
 
+    /**
+     * Check if a key is down.
+     * @param key The key to check.
+     * @return Bool Whether the key is down.
+     */
     public static function isKeyDown(key: Key): Bool {
         return keyStates.exists(key) && keyStates.get(key);
     }
 
+    /**
+     * Check if a key is up.
+     * @param key The key to check.
+     * @return Bool Whether the key is up.
+     */
     public static function isKeyUp(key: Key): Bool {
         return !keyStates.exists(key) || !keyStates.get(key);
     }
 
+    /**
+     * Check if a key is pressed.
+     * @param key The key to check.
+     * @return Bool Whether the key is pressed this frame.
+     */
     public static function isKeyPressed(key: Key): Bool {
         return keyStates.exists(key) && keyStates.get(key) && lastFrameDownKeys.indexOf(key) == -1;
     }
 
+    /**
+     * Check if a key is released.
+     * @param key The key to check.
+     * @return Bool Whether the key is released.
+     */
     public static function isKeyReleased(key: Key): Bool {
         return (!keyStates.exists(key) || !keyStates.get(key)) && lastFrameDownKeys.indexOf(key) != -1;
     }
 
+    /**
+     * Check if a key is being repeated.
+     * @param key The key to check.
+     * @return Bool Whether the key is being repeated.
+     */
     public static function isKeyRepeat(key: Key): Bool {
         return lastRepeatKey != null && lastRepeatKey == key && isKeyDown(key);
     }
 
+    /**
+     * Begin a new frame.
+     */
     public static function beginFrame() {
         lastFrameDownKeys = framePressedKeys.copy();
         framePressedKeys = [];
     }
 
+    /**
+     * Called in the backend, will submit and update the key states.
+     */
     public static function submit() {
         var newRepeatKey: Key = null;
 
@@ -112,6 +174,10 @@ class KeyboardInput {
         keyStates.set(KEY_SHIFT, shiftMod);
     }
 
+    /**
+     * Get all keys that were pressed this frame.
+     * @return Array<Key> The keys that were pressed this frame.
+     */
     public static function getPressedKeys(): Array<Key> {
         var time = Sys.time();
         var pressedKeys: Array<Key> = framePressedKeys.copy().filter(function(key) {
