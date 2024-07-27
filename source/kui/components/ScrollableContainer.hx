@@ -34,7 +34,7 @@ class ScrollableContainer extends Component {
             innerContentStartY = getBoundsY() - innerOffsetY;
             if (targetInnerOffsetY < 0) targetInnerOffsetY = 0;
             if (targetInnerOffsetY > innerContentHeight - getBoundsHeight()) targetInnerOffsetY = innerContentHeight - getBoundsHeight();
-            var da = (targetInnerOffsetY - innerOffsetY) * (impl.getDeltaTime() * Style.SCROLL_SPEED);
+            var da = Std.int(targetInnerOffsetY - innerOffsetY) * (impl.getDeltaTime() * Style.SCROLL_SPEED);
             innerOffsetY += Math.isNaN(da) ? 0 : da;
             enabled = true;
         } else {

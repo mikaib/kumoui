@@ -143,7 +143,7 @@ class Style {
     public static inline final CONTAINER_ROUNDING: Int = 5;
     
     // Animations
-    public static inline final WINDOW_COLLAPSE_SPEED: Float = 25;
-    public static inline final SCROLL_SPEED: Float = 25;
-    public static inline final TOGGLE_SPEED: Float = 25;
+    public static inline final WINDOW_COLLAPSE_SPEED: Float = 30;
+    public static inline final SCROLL_SPEED: Float = 30;
+    public static inline final TOGGLE_SPEED: Float = 30;
 }
