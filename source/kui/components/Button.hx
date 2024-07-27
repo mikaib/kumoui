@@ -7,7 +7,7 @@ class Button extends Component {
 
     private var text: TextStorage = new TextStorage(null, Style.BUTTON_TEXT_SIZE, Style.BUTTON_TEXT_FONT);
     private var upperCase: Bool = Style.BUTTON_TEXT_UPPERCASE;
-    private var fullWidth: Bool = false;
+    private var width: Float = 0;
     
     private var clicked: Bool = false;
     private var active: Bool = false;
@@ -23,7 +23,7 @@ class Button extends Component {
         text.text = (upperCase ? Std.string(data.text).toUpperCase() : data.text) ?? text.text; 
         text.size = data.size ?? Style.BUTTON_TEXT_SIZE;
         text.font = data.font ?? Style.BUTTON_TEXT_FONT;
-        fullWidth = data.fullWidth ?? false;
+        width = data.width ?? width;
         return clicked;
     }
 
@@ -40,10 +40,8 @@ class Button extends Component {
 
     override function onLayoutUpdate(impl: Base) {
         useLayoutPosition();
-    
-        var width = text.getWidth(impl) + Style.BUTTON_INNER_PADDING;
-        if (fullWidth) width = KumoUI.getParentWidth() - (getBoundsX() - KumoUI.getParentX()) - Style.GLOBAL_PADDING;
-
+        
+        if (width == 0) width = text.getWidth(impl) + Style.BUTTON_INNER_PADDING;
         setSize(width, text.getHeight(impl) + Style.BUTTON_INNER_PADDING);
 
         useBoundsClipRect();

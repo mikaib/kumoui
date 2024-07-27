@@ -34,6 +34,9 @@ class Demo {
 
         KumoUI.separator();
 
+        // ---------------------------------
+        // Text
+        // ---------------------------------
         if (KumoUI.collapse('Text')) {
             KumoUI.text('Default text');
             KumoUI.text('Coloured text', 0xff0000);
@@ -50,6 +53,9 @@ class Demo {
             KumoUI.text('Small bold coloured text', 0x00ff00, 10, BOLD);
         }
 
+        // ---------------------------------
+        // Tree view
+        // ---------------------------------
         if (KumoUI.collapse("Tree View")) {
             if (KumoUI.beginTreeNode("1")) {
                 KumoUI.text("Some text content!");
@@ -107,6 +113,9 @@ class Demo {
 
         }
 
+        // ---------------------------------
+        // Buttons
+        // ---------------------------------
         if (KumoUI.collapse("Buttons")) {
             KumoUI.button("Simple Button");
 
@@ -116,12 +125,15 @@ class Demo {
             KumoUI.sameLine();
             KumoUI.button("Button row (3/3)");
 
-            KumoUI.button("Full width button", null, null, true);
+            KumoUI.button("Full width button", null, null, KumoUI.getInnerWidth());
 
-            KumoUI.button("Non-bold button", null, REGULAR, true);
-            KumoUI.button("BIG BUTTON", 48, BOLD, true);
+            KumoUI.button("Non-bold button", null, REGULAR, KumoUI.getInnerWidth());
+            KumoUI.button("BIG BUTTON", 48, BOLD, KumoUI.getInnerWidth());
         }
 
+        // ---------------------------------
+        // Toggles
+        // ---------------------------------
         if (KumoUI.collapse("Toggles")) {
             toggle_value = KumoUI.toggle("my_toggle", null, toggle_value);
             toggle_value = KumoUI.toggle("my_toggle2", "Labelled toggle", toggle_value);
@@ -130,6 +142,9 @@ class Demo {
             toggle_value = KumoUI.toggle("my_toggle5", "Labelled toggle with bold label", toggle_value, null, null, BOLD);
         }
 
+        // ---------------------------------
+        // Sliders
+        // ---------------------------------
         if (KumoUI.collapse("Sliders")) {
             KumoUI.text('Float Sliders: $float_slider_value', null, 24, BOLD);
             float_slider_value = KumoUI.sliderFloat("my_slider", null, null, null, float_slider_value);
@@ -148,6 +163,9 @@ class Demo {
             int_slider_value = KumoUI.sliderInt("my_slider12", null, null, null, int_slider_value, null, null, null, KumoUI.getInnerWidth());
         }
 
+        // ---------------------------------
+        // Input
+        // ---------------------------------
         if (KumoUI.collapse("Input")) {
             KumoUI.text('Generic Input (text):', null, 24, BOLD);
             KumoUI.inputText('my_input', 'Basic Label', 'Basic Placeholder');
@@ -169,6 +187,9 @@ class Demo {
             KumoUI.inputFloat('my_input13', 'Capped Float input', '-100 to 100', -100, 100);
         }
 
+        // ---------------------------------
+        // Graphs
+        // ---------------------------------
         if (KumoUI.collapse("Graphs")) {
             KumoUI.graph(points_sin, KumoUI.getInnerWidth(), 200);
             KumoUI.graph(points_cos, KumoUI.getInnerWidth(), 200, "With normal label (cos)");

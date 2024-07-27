@@ -455,7 +455,7 @@ class GraphingCalculator {
                
                 KumoUI.sameLine();
 
-                if (KumoUI.button('remove', null, null, true)) functions.splice(index, 1);
+                if (KumoUI.button('remove', null, null, KumoUI.getInnerWidth())) functions.splice(index, 1);
                 if (fn.error != null) KumoUI.text('Error: ${fn.error}', 0xff0000, 12, BOLD);
 
                 index++;
@@ -476,7 +476,7 @@ class GraphingCalculator {
                 }
 
                 KumoUI.sameLine();
-                if (KumoUI.button('remove', null, null, true)) constants.splice(index, 1);
+                if (KumoUI.button('remove', null, null, KumoUI.getInnerWidth())) constants.splice(index, 1);
 
                 index++;
             }
@@ -495,7 +495,7 @@ class GraphingCalculator {
                 if (i != functions.length - 1) KumoUI.sameLine();
             }
 
-            if (KumoUI.button('Calculate Intersections', null, null, true)) {
+            if (KumoUI.button('Calculate Intersections', null, null, KumoUI.getInnerWidth())) {
                 var context = new MathExprContext();
                 for (c in constants) {
                     trace(c.name, c.value);
