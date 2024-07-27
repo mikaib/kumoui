@@ -15,7 +15,11 @@ class Demo {
     public static var moving_points_square: Array<Float> = [for (i in 0...points_n) if (i % 100 > 50) 1 else -1];
     public static var moving_points_square_count: Int = 0;
 
+    // Demo apps
     public static var demo_calc: Bool = false;
+
+    // Dev tools
+    public static var dev_inspector: Bool = false;
 
     public static function use() {
         KumoUI.beginWindow('Demo', 'demo_window');
@@ -29,7 +33,7 @@ class Demo {
         }
 
         if (KumoUI.collapse('Development Tools')) {
-            KumoUI.text('Sorry, nothing available yet :(');
+            dev_inspector = KumoUI.toggle('dev_inspector', 'Inspector');
         }
 
         KumoUI.separator();
@@ -215,6 +219,7 @@ class Demo {
         KumoUI.endWindow();
 
         if (demo_calc) GraphingCalculator.use();
+        if (dev_inspector) Inspector.use();
     }
 
 }

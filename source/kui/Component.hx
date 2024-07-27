@@ -216,6 +216,13 @@ class Component {
     }
 
     /**
+     * Get the name of the component type, used for debugging purposes.
+     */
+    public inline function getComponentType(): String {
+        return Type.getClassName(Type.getClass(this));
+    }
+
+    /**
      * Set the width of the component.
      * @param value The value to set the width to.
      */

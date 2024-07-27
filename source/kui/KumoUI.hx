@@ -49,63 +49,99 @@ class KumoUI {
      * @param data The data to pass to the component
      * @return the data that the component returns in the onDataUpdate method
      */
-    public static function addComponent(comp: Class<Component>, data: Dynamic) : Dynamic {
+    public static function addComponent(comp: Class<Component>, data: Dynamic): Dynamic {
         var isNew = false;
-        if (currentComponents[currentComponentIndex] == null) {
-            currentComponents.push(Type.createInstance(comp, []));
+        var currentComponent = currentComponents[currentComponentIndex];
+        var newComp = Type.createInstance(comp, []);
+        var dataId = data?.id;
+
+        function serializeCurrentComponent(component: Component, ?posInfo: PosInfos) {
+            if (component != null && component.getId() != null && component.getSerializable()) {
+                var storedData = component.onSerialize();
+                dataMap.set(component.getId(), storedData);
+                debugLog('Serializing data for instance with id ${component.getId()}, data: ${Std.string(storedData)} (from ${posInfo.fileName}:${posInfo.lineNumber})');
+            }
+        }
+
+        if (currentComponent == null) {
+            currentComponents.push(newComp);
             debugLog('Creating new instance at index ${currentComponentIndex} of type ${Type.getClassName(comp)}');
             isNew = true;
-        } else if (Type.getClassName(Type.getClass(currentComponents[currentComponentIndex])) != Type.getClassName(comp)) {
-            var found = false;
-            var id = data?.id;
+        } else {
+            var currentCompClassName = Type.getClassName(Type.getClass(currentComponent));
+            var newCompClassName = Type.getClassName(comp);
+            var currentCompId = currentComponent.getId();
 
-            if (id != null) {
-                for (i in 0...currentComponents.length) {
-                    if (currentComponents[i].getId() == id) {
-                        var moved = currentComponents.splice(i, 1);
-                        currentComponents.insert(currentComponentIndex, moved[0]);
-                        found = true;
-                        debugLog('Component type mismatch, moving instance from index ${i} to index ${currentComponentIndex} of type ${Type.getClassName(comp)}');
-                        break;
+            if (currentCompClassName != newCompClassName || currentCompId != dataId) {
+                serializeCurrentComponent(currentComponent);
+
+                if (currentCompClassName != newCompClassName) {
+                    var found = false;
+                    if (dataId != null) {
+                        for (i in 0...currentComponents.length) {
+                            if (currentComponents[i].getId() == dataId) {
+                                var moved = currentComponents.splice(i, 1);
+                                currentComponents.insert(currentComponentIndex, moved[0]);
+                                found = true;
+                                debugLog('Component type mismatch, moving instance from index ${i} to index ${currentComponentIndex} of type ${newCompClassName}');
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!found) {
+                        currentComponents.insert(currentComponentIndex, newComp);
+                        currentComponents.remove(currentComponent);
+                        debugLog('Component type mismatch, creating new instance at index ${currentComponentIndex} of type ${newCompClassName}');
+                        isNew = true;
+                    }
+                } else {
+                    var found = false;
+                    if (dataId != null) {
+                        for (i in 0...currentComponents.length) {
+                            if (currentComponents[i].getId() == dataId) {
+                                var moved = currentComponents.splice(i, 1);
+                                currentComponents.insert(currentComponentIndex, moved[0]);
+                                found = true;
+                                debugLog('Component type mismatch, moving instance from index ${i} to index ${currentComponentIndex} of type ${newCompClassName}');
+                                break;
+                            }
+                        }
+                    }
+                    if (!found) {
+                        currentComponents.insert(currentComponentIndex, newComp);
+                        currentComponents.remove(currentComponent);
+                        debugLog('Component type mismatch, creating new instance at index ${currentComponentIndex} of type ${newCompClassName}');
+                        isNew = true;
                     }
                 }
-            }
+            } else if (currentCompId != dataId) {
+                serializeCurrentComponent(currentComponent);
 
-            if (!found) {
-                currentComponents.insert(currentComponentIndex, Type.createInstance(comp, []));
-                debugLog('Component type mismatch, creating new instance at index ${currentComponentIndex} of type ${Type.getClassName(comp)}');
+                currentComponents[currentComponentIndex] = newComp;
+                debugLog('Replacing instance at index ${currentComponentIndex} of type ${newCompClassName} due to different ID');
                 isNew = true;
             }
-        } else if (currentComponents[currentComponentIndex].getId() != data?.id) {
-            if (currentComponents[currentComponentIndex].getId() != null && currentComponents[currentComponentIndex].getSerializable()) {
-                var storedData = currentComponents[currentComponentIndex].onSerialize();
-                dataMap.set(currentComponents[currentComponentIndex].getId(), storedData);
-                debugLog('Serializing data for instance with id ${currentComponents[currentComponentIndex].getId()}, data: ${Std.string(storedData)}');
-            }
-
-            currentComponents[currentComponentIndex] = Type.createInstance(comp, []);
-            debugLog('Replacing instance at index ${currentComponentIndex} of type ${Type.getClassName(comp)}');
-            isNew = true;
         }
 
-        var comp = currentComponents[currentComponentIndex];
-        comp.updateComputedPriority();
-        comp.setId(data?.id);
+        var compInstance = currentComponents[currentComponentIndex];
+        compInstance.updateComputedPriority();
+        compInstance.setId(dataId);
 
-        if (comp.getId() != null && isNew) {
-            var storedData = dataMap.get(comp.getId());
+        if (compInstance.getId() != null && isNew) {
+            var storedData = dataMap.get(compInstance.getId());
             if (storedData != null) {
-                debugLog('Deserializing data for instance with id ${comp.getId()}, data: ${Std.string(storedData)}');
-                comp.onDeserialize(storedData);
+                debugLog('Deserializing data for instance with id ${compInstance.getId()}, data: ${Std.string(storedData)}');
+                compInstance.onDeserialize(storedData);
             }
         }
 
-        var ret: Dynamic = comp.onDataUpdate(data);
-        comp.setDataInteractable(data);
+        var ret: Dynamic = compInstance.onDataUpdate(data);
+        compInstance.setDataInteractable(data);
         currentComponentIndex++;
 
-        comp.onLayoutUpdate(impl);
-        if (comp.isVisible()) toRender.push(comp);
+        compInstance.onLayoutUpdate(impl);
+        if (compInstance.isVisible()) toRender.push(compInstance);
 
         return ret;
     }
@@ -494,7 +530,8 @@ class KumoUI {
      * @param posInfo The position information (no need to pass this, it will be automatically be done by the compiler)
      */
     public static inline function debugLog(m: Dynamic, ?posInfo: PosInfos) {
-        return; //Sys.println('[kui debug] (${posInfo.fileName}:${posInfo.lineNumber}) in ${posInfo.className}.${posInfo.methodName}: ${Std.string(m)}');
+        //Sys.println('[kui debug] (${posInfo.fileName}:${posInfo.lineNumber}) in ${posInfo.className}.${posInfo.methodName}: ${Std.string(m)}');
+        return;
     }
 
     // Input utility functions
