@@ -49,7 +49,7 @@ uniform sampler2D texture0;
 uniform vec4 colDiffuse;
 
 const float u_buffer = 0.45;
-const float u_gamma = 0.40;
+const float u_gamma = 0.45;
 
 out vec4 finalColor;
 
