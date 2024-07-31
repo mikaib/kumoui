@@ -81,7 +81,7 @@ class MultiGraph extends Component {
                         impl.drawLine(pointX, y, pointX, y + h, Style.GRAPH_POINT_COLOR, Style.GRAPH_POINTLINE_SIZE);
                         impl.drawCircle(pointX, pointY, Style.GRAPH_POINT_SIZE, Style.GRAPH_POINT_COLOR);
                         var labelText = pointArray.label != null ? '${pointArray.label} (${pointValue}})' : '(${pointIndex}, ${points[pointIndex]})';
-                        impl.drawText(labelText, pointX + Style.GLOBAL_PADDING, pointY - Style.GLOBAL_PADDING - 16, Style.GRAPH_POINT_COLOR, 16, REGULAR);
+                        impl.drawText(labelText, pointX + Style.GLOBAL_PADDING, Math.max(pointY - Style.GLOBAL_PADDING - 16, getBoundsY()), Style.GRAPH_POINT_COLOR, 16, REGULAR);
                     }
                 }
             }
