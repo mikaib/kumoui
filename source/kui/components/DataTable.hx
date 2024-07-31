@@ -40,6 +40,8 @@ class DataTable extends Component {
     }
 
     override function onRender(impl: Base) {
+        if (tableData == null) return;
+        
         var tableWidth = getTableWidth();
         impl.drawRect(getBoundsX(), getBoundsY(), tableWidth, headerHeight, Style.TABLE_HEADER_BACKGROUND_COLOR, Style.TABLE_HEADER_BACKGROUND_ROUNDING);
 
@@ -105,7 +107,7 @@ class DataTable extends Component {
     }
 
     override function onDataUpdate(data: Dynamic): Dynamic {
-        tableData = data.tableData ?? tableData;
+        tableData = data.tableData ?? null;
         rowHeight = data.rowHeight ?? Style.TABLE_ROW_TEXT_SIZE + Style.GLOBAL_PADDING * 2;
         headerHeight = data.headerHeight ?? Style.TABLE_HEADER_TEXT_SIZE + Style.GLOBAL_PADDING * 2;
         return null;

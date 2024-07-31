@@ -13,7 +13,10 @@ class Layout {
 
     // The position stack
     private static var _pstack: Stack<{ x: Float, y: Float, width: Float, height: Float }> = new Stack<{ x: Float, y: Float, width: Float, height: Float }>();
-
+    
+    // Default state of position stack
+    private static var defaultState: { x: Float, y: Float, width: Float, height: Float } = { x: Style.GLOBAL_PADDING, y: 0, width: 0, height: 0 };
+    
     // Sameline parameters
     private static var _sameLine: Bool = false;
     private static var _lastWasSameLine: Bool = false;
@@ -39,7 +42,7 @@ class Layout {
      * @param component The component to begin the container for.
      */
     public static function beginParentContainer(component: Component) {
-        _pstack.push({ x: 0, y: 0, width: 0, height: 0 });
+        pushPosition(0, 0, 0, 0);
         KumoUI.containerStack.push(component);
     }
 
@@ -110,11 +113,28 @@ class Layout {
         if (!_lastWasSameLine) {
             var curr = _pstack.peek();
 
-            _pstack.push({ x: curr.x, y: curr.y, width: curr.width, height: curr.height });
+            pushPosition(curr.x, curr.y, curr.width, curr.height);
             _lastWasSameLine = true;
         }
     }
 
+    /**
+     * Push pos item to pstack using data pool
+     * @param x The x position.
+     * @param y The y position.
+     * @param width The width (0 if you desire absolute positioning at x/y)
+     * @param height The height (0 if you desire absolute positioning at x/y)
+     */
+    public static function pushPosition(x: Float, y: Float, width: Float, height: Float) {
+        var data = KumoUI.acquireDataPoolItem();
+        data.x = x;
+        data.y = y;
+        data.width = width;
+        data.height = height;
+
+        _pstack.push(data);
+    }
+    
     /**
      * Get the next position in the layout.
      * @return { x: Float, y: Float } The next position.
@@ -158,7 +178,7 @@ class Layout {
     public static function reset(screenWidth: Float, screenHeight: Float) {
         // Reset the position stack
         _pstack.clear();
-        _pstack.push({ x: Style.GLOBAL_PADDING, y: 0, width: 0, height: 0 });
+        pushPosition(defaultState.x, defaultState.y, defaultState.width, defaultState.height);
 
         // Reset the screen dimensions
         _screenw = screenWidth;

@@ -8,8 +8,8 @@ class IntInput extends GenericInput {
     private var max: Null<Int> = null;
 
     override function onDataUpdate(data:Dynamic):Dynamic {
-        min = data.min ?? min;
-        max = data.max ?? max;
+        min = data.min ?? null;
+        max = data.max ?? null;
         return Std.parseInt(super.onDataUpdate(data));
     }
 

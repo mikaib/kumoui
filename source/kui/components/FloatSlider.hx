@@ -24,7 +24,7 @@ class FloatSlider extends Component {
     override function onDataUpdate(data: Dynamic): Dynamic {
         if (!active) value = data.value ?? value;
         width = data.width ?? Style.SLIDER_WIDTH;
-        label.text = data.text ?? label.text;
+        label.text = data.text ?? '';
         label.size = data.size ?? Style.TEXT_DEFAULT_SIZE;
         label.font = data.font ?? Style.TEXT_DEFAULT_FONT;
         label.color = data.color ?? Style.TEXT_DEFAULT_COLOR;

@@ -10,7 +10,7 @@ class Text extends Component {
     override function onRender(impl: Base) impl.drawText(text.getText(), getBoundsX(), getBoundsY(), text.getColor(), text.getSize(), text.getFont());
 
     override function onDataUpdate(data: Dynamic): Dynamic {
-        text.text = data.text ?? text.text;
+        text.text = data.text ?? '';
         text.size = data.size ?? Style.TEXT_DEFAULT_SIZE;
         text.font = data.font ?? Style.TEXT_DEFAULT_FONT;
         text.color = data.color ?? Style.TEXT_DEFAULT_COLOR;

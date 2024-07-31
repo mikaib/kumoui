@@ -455,7 +455,7 @@ class GraphingCalculator {
                
                 KumoUI.sameLine();
 
-                if (KumoUI.button('remove', null, null, KumoUI.getInnerWidth())) functions.splice(index, 1);
+                if (KumoUI.button('remove', null, null, 150)) functions.splice(index, 1);
                 if (fn.error != null) KumoUI.text('Error: ${fn.error}', 0xff0000, 12, BOLD);
 
                 index++;
@@ -476,7 +476,7 @@ class GraphingCalculator {
                 }
 
                 KumoUI.sameLine();
-                if (KumoUI.button('remove', null, null, KumoUI.getInnerWidth())) constants.splice(index, 1);
+                if (KumoUI.button('remove', null, null, 150)) constants.splice(index, 1);
 
                 index++;
             }

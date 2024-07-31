@@ -26,7 +26,7 @@ class Window extends Component {
     public inline function toRad(deg: Float): Float return deg * Math.PI / 180;
 
     override function onDataUpdate(data: Dynamic): Dynamic {
-        title = data.title ?? title;
+        title = data.title ?? '';
         x = data.x ?? x;
         y = data.y ?? y;
         width = data.width ?? width;

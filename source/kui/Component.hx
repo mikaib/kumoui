@@ -23,6 +23,7 @@ class Component {
     // prio
     private var _priority: Int = 1;
     private var _computedPriority: Int = 1;
+    private var _lastDepth: Int = 0;
 
     // flags
     private var _serializable: Bool = false;
@@ -82,6 +83,20 @@ class Component {
      */
     public inline function setSerializable(value: Bool): Void {
         _serializable = value;
+    }
+
+    /**
+     * Get the last depth of the component, this is used for debugging purposes.
+     */
+    public inline function getLastDepth(): Int {
+        return _lastDepth;
+    }
+
+    /**
+     * Updates the last depth of the component, this is used for debugging purposes.
+     */
+    public inline function updateLastDepth(): Void {
+        _lastDepth = KumoUI.containerStack.size();
     }
 
     /**
@@ -255,7 +270,7 @@ class Component {
     }
     
     /**
-     * Tell the com
+     * Tell the component to use the clip rect of the screen.
      * @return Void Ise the clip rect of the screen.  
      * Note that if the component is in a parent container, it will be clipped to the parent's clip rect.
      */

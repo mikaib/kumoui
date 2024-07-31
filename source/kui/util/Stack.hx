@@ -52,7 +52,7 @@ class Stack<T> {
      * Clear the stack
      */
     public function clear(): Void {
-        stack = [];
+        stack.resize(0);
     }
 
     /**

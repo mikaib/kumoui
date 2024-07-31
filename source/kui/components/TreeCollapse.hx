@@ -16,7 +16,7 @@ class TreeCollapse extends Component {
     public inline function toRad(deg: Float): Float return deg * Math.PI / 180;
 
     override function onDataUpdate(data: Dynamic): Dynamic {
-        text.text = (upperCase ? Std.string(data.text).toUpperCase() : data.text) ?? text.text; 
+        text.text = (upperCase ? Std.string(data.text).toUpperCase() : data.text) ?? '';
         text.size = data.size ?? Style.TEXT_DEFAULT_SIZE;
         text.font = data.font ?? Style.TEXT_DEFAULT_FONT;
         expanded = data.expanded ?? expanded;

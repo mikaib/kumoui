@@ -22,7 +22,7 @@ class Toggle extends Component {
 
     override function onDataUpdate(data: Dynamic): Dynamic {
         if (!changedLastFrame) toggled = data.value ?? toggled;
-        label.text = data.text ?? label.text;
+        label.text = data.text ?? '';
         label.size = data.size ?? Style.TEXT_DEFAULT_SIZE;
         label.font = data.font ?? Style.TEXT_DEFAULT_FONT;
         label.color = data.color ?? Style.TEXT_DEFAULT_COLOR;

@@ -1,5 +1,7 @@
 package kui.demo;
 
+import kui.util.ProfilerTimer;
+
 class Demo {
 
     public static var float_slider_value: Float = 0.0;
@@ -20,6 +22,7 @@ class Demo {
 
     // Dev tools
     public static var dev_inspector: Bool = false;
+    public static var dev_profiler: Bool = false;
 
     public static function use() {
         KumoUI.beginWindow('Demo', 'demo_window');
@@ -34,6 +37,7 @@ class Demo {
 
         if (KumoUI.collapse('Development Tools')) {
             dev_inspector = KumoUI.toggle('dev_inspector', 'Inspector');
+            dev_profiler = KumoUI.toggle('dev_profiler', 'Profiler');
         }
 
         KumoUI.separator();
@@ -219,6 +223,7 @@ class Demo {
         KumoUI.endWindow();
 
         if (demo_calc) GraphingCalculator.use();
+        if (dev_profiler) Profiler.use();
         if (dev_inspector) Inspector.use();
     }
 

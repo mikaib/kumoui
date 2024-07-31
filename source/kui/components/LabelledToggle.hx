@@ -8,9 +8,9 @@ class LabelledToggle extends Toggle {
     private var text: TextStorage = new TextStorage();
     
     override function onDataUpdate(data:Dynamic):Dynamic {
-        text.text = data.text ?? text.text;
-        text.size = data.size ?? text.size;
-        text.color = data.color ?? text.color;
+        text.text = data.text ?? '';
+        text.size = data.size ?? Style.TEXT_DEFAULT_SIZE;
+        text.color = data.color ?? Style.TEXT_DEFAULT_COLOR;
         return super.onDataUpdate(data);
     }
 

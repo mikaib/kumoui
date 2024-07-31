@@ -98,18 +98,18 @@ class GenericInput extends Component {
         // value.font = data.font ?? value.font;
         // value.color = data.color ?? value.color;
 
-        label.text = data.label ?? label.text;
+        label.text = data.label ?? '';
         label.size = data.labelSize ?? Style.TEXT_DEFAULT_SIZE;
         label.font = data.labelFont ?? Style.TEXT_DEFAULT_FONT;
         label.color = data.labelColor ?? Style.TEXT_DEFAULT_COLOR;
 
-        placeholder.text = data.placeholder ?? placeholder.text;
+        placeholder.text = data.placeholder ?? '';
         // placeholder.size = data.size ?? placeholder.size;
         // placeholder.font = data.font ?? placeholder.font;
         // placeholder.color = data.placeholderColor ?? placeholder.color;
 
-        width = data.width ?? width;
-        height = data.height ?? height;
+        width = data.width ?? Style.INPUT_DEFAULT_WIDTH;
+        height = data.height ?? Style.INPUT_DEFAULT_HEIGHT;
 
         return value.text;
     }

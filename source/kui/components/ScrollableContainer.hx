@@ -14,7 +14,7 @@ class ScrollableContainer extends Component {
     public var enabled: Bool = false;
 
     override function onDataUpdate(data:Dynamic): Dynamic {
-        scrollHeightOffset = data.scrollHeightOffset ?? scrollHeightOffset;
+        scrollHeightOffset = data.scrollHeightOffset ?? 0;
         return null;
     }
 

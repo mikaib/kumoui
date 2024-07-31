@@ -1,5 +1,6 @@
 package kui;
 
+import kui.util.ProfilerTimer;
 import kui.demo.Demo;
 import haxe.PosInfos;
 import kui.FontType;
@@ -9,6 +10,10 @@ import kui.util.Stack;
 
 class KumoUI {
 
+    // Data pool
+    public static var dataPoolIndex: Int = 0;
+    public static var dataPool: Array<Dynamic> = [];
+    
     // Parent container stuff
     public static var containerStack: Stack<Component> = new Stack<Component>();
 
@@ -35,6 +40,46 @@ class KumoUI {
     // Debug draw
     public static var debugDraw: Bool = false;
 
+    // Profiler data
+    public static var lastFrameTime: Float = 0;
+    public static var componentLayoutTimes: Map<String, Float> = [];
+    public static var componentRenderTimes: Map<String, Float> = [];
+
+    /**
+     * Get a new data pool item
+     */
+    public static function acquireDataPoolItem(): Dynamic {
+        if (dataPoolIndex >= dataPool.length) dataPool.push({});
+
+        var item = dataPool[dataPoolIndex];
+        item.id = null;
+
+        dataPoolIndex++;
+        return item;
+    }
+
+    /**
+     * Clean the data pool, call this at the end of the frame
+     */
+    public static function cleanDataPool() {
+        dataPool.resize(dataPoolIndex);
+        
+        for (itemIndex in 0...dataPoolIndex) {
+            var item = dataPool[itemIndex];
+            item.id = null;
+            item.value = null;
+            item.expanded = null;
+            item.collapsed = null;
+            item.x = null;
+            item.y = null;
+            item.width = null;
+            item.height = null;
+            item.toggled = null;
+        }
+
+        dataPoolIndex = 0;
+    }
+    
     /**
      * Set debug mode
      * @param mode Debug mode
@@ -124,6 +169,7 @@ class KumoUI {
             }
         }
 
+        var cStart = ProfilerTimer.getTime();
         var compInstance = currentComponents[currentComponentIndex];
         compInstance.updateComputedPriority();
         compInstance.setId(dataId);
@@ -140,8 +186,15 @@ class KumoUI {
         compInstance.setDataInteractable(data);
         currentComponentIndex++;
 
+        compInstance.updateLastDepth();
         compInstance.onLayoutUpdate(impl);
         if (compInstance.isVisible()) toRender.push(compInstance);
+
+        var cEnd = ProfilerTimer.getTime();
+        var cType = Type.getClassName(comp);
+
+        if (!componentLayoutTimes.exists(cType)) componentLayoutTimes.set(cType, 0);
+        componentLayoutTimes.set(cType, componentLayoutTimes.get(cType) + cEnd - cStart);
 
         return ret;
     }
@@ -159,8 +212,12 @@ class KumoUI {
      * @param color The color of the separator
      * @param thickness The thickness of the separator
      */
-    public static inline function separator(?color: Int, ?thickness: Int): Void {
-        addComponent(kui.components.Separator, { color: color, thickness: thickness });
+     public static inline function separator(?color: Int, ?thickness: Int): Void {
+        var data: Dynamic = acquireDataPoolItem();
+        data.color = color;
+        data.thickness = thickness;
+
+        addComponent(kui.components.Separator, data);
     }
 
     /**
@@ -174,7 +231,15 @@ class KumoUI {
      * @return Bool The value of the toggle
      */
     public static inline function toggle(id: String, ?labelText: String, ?value: Bool, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType): Bool {
-        return addComponentBool(kui.components.Toggle, { id: id, text: labelText, size: labelSize, color: labelColor, font: labelType, value: value });
+        var data: Dynamic = acquireDataPoolItem();
+        data.id = id;
+        data.text = labelText;
+        data.value = value;
+        data.size = labelSize;
+        data.color = labelColor;
+        data.font = labelType;
+
+        return addComponentBool(kui.components.Toggle, data);
     }
 
     /**
@@ -190,7 +255,18 @@ class KumoUI {
      * @param width The width of the slider
      */
     public static inline function sliderFloat(id: String, ?labelText: String, ?min: Float, ?max: Float, ?value: Float, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float) {
-        return addComponentFloat(kui.components.FloatSlider, { id: id, min: min, max: max, width: width, text: labelText, size: labelSize, color: labelColor, font: labelType, value: value });
+        var data: Dynamic = acquireDataPoolItem();
+        data.id = id;
+        data.text = labelText;
+        data.min = min;
+        data.max = max;
+        data.value = value;
+        data.size = labelSize;
+        data.color = labelColor;
+        data.font = labelType;
+        data.width = width;
+
+        return addComponentFloat(kui.components.FloatSlider, data);
     }
 
     /**
@@ -206,7 +282,18 @@ class KumoUI {
      * @param width The width of the slider
      */
     public static inline function sliderInt(id: String, ?labelText: String, ?min: Int, ?max: Int, ?value: Int, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float) {
-        return addComponentInt(kui.components.IntSlider, { id: id, min: min, max: max, width: width, text: labelText, size: labelSize, color: labelColor, font: labelType, value: value });
+        var data: Dynamic = acquireDataPoolItem();
+        data.id = id;
+        data.text = labelText;
+        data.min = min;
+        data.max = max;
+        data.value = value;
+        data.size = labelSize;
+        data.color = labelColor;
+        data.font = labelType;
+        data.width = width;
+
+        return addComponentInt(kui.components.IntSlider, data);
     }
 
     /**
@@ -218,7 +305,13 @@ class KumoUI {
      * @return Bool The value of the collapse component
      */
     public static inline function collapse(text: String, ?id: String, ?fontSize: Int, ?fontType: FontType): Bool {
-        return addComponentBool(kui.components.Collapse, { text: text, size: fontSize, font: fontType, id: id ?? text });
+        var data: Dynamic = acquireDataPoolItem();
+        data.text = text;
+        data.size = fontSize;
+        data.font = fontType;
+        data.id = id ?? text;
+
+        return addComponentBool(kui.components.Collapse, data);
     }
 
     /**
@@ -236,7 +329,13 @@ class KumoUI {
      * @param fontType The font type
      */
     public static inline function text(text: String, ?color: Int, ?fontSize: Int, ?fontType: FontType): Void {
-        addComponent(kui.components.Text, { text: text, color: color, size: fontSize, font: fontType });
+        var data: Dynamic = acquireDataPoolItem();
+        data.text = text;
+        data.color = color;
+        data.size = fontSize;
+        data.font = fontType;
+
+        addComponent(kui.components.Text, data);
     }
 
     /**
@@ -248,7 +347,13 @@ class KumoUI {
      * @return Bool Whether the button was clicked the current frame
      */
     public static inline function button(text: String, ?fontSize: Int, ?fontType: FontType, ?width: Float): Bool {
-        return addComponentBool(kui.components.Button, { text: text, size: fontSize, font: fontType, width: width });
+        var data: Dynamic = acquireDataPoolItem();
+        data.text = text;
+        data.size = fontSize;
+        data.font = fontType;
+        data.width = width;
+
+        return addComponentBool(kui.components.Button, data);
     }
 
     /**
@@ -267,7 +372,13 @@ class KumoUI {
      * @return If the note is expanded or not
      */
     public static inline function beginTreeNode(text: String, ?id: String, ?fontSize: Int, ?fontType: FontType): Bool {
-        return addComponentBool(kui.components.TreeCollapse, { text: text, size: fontSize, font: fontType, id: id ?? text });
+        var data: Dynamic = acquireDataPoolItem();
+        data.text = text;
+        data.size = fontSize;
+        data.font = fontType;
+        data.id = id ?? text;
+
+        return addComponentBool(kui.components.TreeCollapse, data);
     }
 
     /**
@@ -287,7 +398,15 @@ class KumoUI {
      * @param labelType The font type of the label
      */
     public static inline function graph(points: Array<Float>, width: Float, height: Float, ?labelText: String, ?labelSize: Int, ?labelType: FontType): Void {
-        addComponent(kui.components.Graph, { points: points, width: width, height: height, text: labelText, size: labelSize, font: labelType });
+        var data: Dynamic = acquireDataPoolItem();
+        data.points = points;
+        data.width = width;
+        data.height = height;
+        data.text = labelText;
+        data.size = labelSize;
+        data.font = labelType;
+
+        addComponent(kui.components.Graph, data);
     }
 
     /**
@@ -297,7 +416,12 @@ class KumoUI {
      * @param height The height of the graph
      */
     public static inline function multiGraph(pointArrays: Array<{ points: Array<Float>, ?label: String, ?color: Int }>, ?width: Float, ?height: Float): Void {
-        addComponent(kui.components.MultiGraph, { pointArrays: pointArrays, width: width, height: height });
+        var data: Dynamic = acquireDataPoolItem();
+        data.pointArrays = pointArrays;
+        data.width = width;
+        data.height = height;
+
+        addComponent(kui.components.MultiGraph, data);
     }
 
     /**
@@ -313,7 +437,17 @@ class KumoUI {
      * @return String The value of the input
      */
     public static inline function inputText(id: String, ?labelText: String, ?placeholderText: String, ?value: String, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): String {
-        return addComponentString(kui.components.GenericInput, { id: id, label: labelText, placeholder: placeholderText, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
+        var data: Dynamic = acquireDataPoolItem();
+        data.id = id;
+        data.label = labelText;
+        data.placeholder = placeholderText;
+        data.value = value;
+        data.labelSize = labelSize;
+        data.labelColor = labelColor;
+        data.labelFont = labelType;
+        data.width = width;
+
+        return addComponentString(kui.components.GenericInput, data);
     }
 
     /**
@@ -331,7 +465,19 @@ class KumoUI {
      * @return The value of the input
      */
     public static inline function inputInt(id: String, ?labelText: String, ?placeholderText: String, ?min: Int, ?max: Null<Int>, ?value: Null<Int>, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): Int {
-        return addComponentInt(kui.components.IntInput, { id: id, label: labelText, placeholder: placeholderText, min: min, max: max, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
+        var data: Dynamic = acquireDataPoolItem();
+        data.id = id;
+        data.label = labelText;
+        data.placeholder = placeholderText;
+        data.min = min;
+        data.max = max;
+        data.value = value;
+        data.labelSize = labelSize;
+        data.labelColor = labelColor;
+        data.labelFont = labelType;
+        data.width = width;
+
+        return addComponentInt(kui.components.IntInput, data);
     }
 
     /**
@@ -349,7 +495,19 @@ class KumoUI {
      * @return The value of the input
      */
     public static inline function inputFloat(id: String, ?labelText: String, ?placeholderText: String, ?min: Null<Float>, ?max: Null<Float>, ?value: Float, ?labelSize: Int, ?labelColor: Int, ?labelType: FontType, ?width: Float): Float {
-        return addComponentFloat(kui.components.FloatInput, { id: id, label: labelText, placeholder: placeholderText, min: min, max: max, value: value, labelSize: labelSize, labelColor: labelColor, labelFont: labelType, width: width });
+        var data: Dynamic = acquireDataPoolItem();
+        data.id = id;
+        data.label = labelText;
+        data.placeholder = placeholderText;
+        data.min = min;
+        data.max = max;
+        data.value = value;
+        data.labelSize = labelSize;
+        data.labelColor = labelColor;
+        data.labelFont = labelType;
+        data.width = width;
+
+        return addComponentFloat(kui.components.FloatInput, data);
     }
 
     /**
@@ -359,7 +517,12 @@ class KumoUI {
      * @param headerHeight The height of the header
      */
     public static inline function table(data: TableData, ?rowHeight: Int, ?headerHeight: Int): Void {
-        addComponent(kui.components.DataTable, { tableData: data, rowHeight: rowHeight, headerHeight: headerHeight });
+        var poolData: Dynamic = acquireDataPoolItem();
+        poolData.tableData = data;
+        poolData.rowHeight = rowHeight;
+        poolData.headerHeight = headerHeight;
+
+        addComponent(kui.components.DataTable, poolData);
     }
 
     /**
@@ -369,8 +532,17 @@ class KumoUI {
      * @param bgColor The background color
      */
     public static inline function beginContainer(?height: Float, ?width: Float, ?bgColor: Int): Void {
-        addComponent(kui.components.Container, { containerHeight: height, containerWidth: width, backgroundColor: bgColor });
-        addComponent(kui.components.ScrollableContainer, { scrollHeightOffset: 0, id: 'scrollable.container${currentComponentIndex}' });
+        var data: Dynamic = acquireDataPoolItem();
+        data.containerHeight = height;
+        data.containerWidth = width;
+        data.backgroundColor = bgColor;
+
+        addComponent(kui.components.Container, data);
+
+        var dataScoll = acquireDataPoolItem();
+        dataScoll.scrollHeightOffset = 0;
+        dataScoll.id = 'scrollable.container${currentComponentIndex}';
+        addComponent(kui.components.ScrollableContainer, dataScoll);
     }
 
     /**
@@ -383,8 +555,20 @@ class KumoUI {
      * @param height The forced height
      */
     public static inline function beginWindow(title: String, id: String, ?x: Float, ?y: Float, ?width: Float, ?height: Float): Void {
-        addComponent(kui.components.Window, { title: title, x: x, y: y, width: width, height: height, id: id});
-        addComponent(kui.components.ScrollableContainer, { scrollHeightOffset: Style.WINDOW_RESIZE_SIZE, id: 'scrollable.${id}' });
+        var data: Dynamic = acquireDataPoolItem();
+        data.title = title;
+        data.x = x;
+        data.y = y;
+        data.width = width;
+        data.height = height;
+        data.id = id;
+        addComponent(kui.components.Window, data);
+
+        var dataScoll = acquireDataPoolItem();
+        dataScoll.scrollHeightOffset = Style.WINDOW_RESIZE_SIZE;
+        dataScoll.id = 'scrollable.${id}';
+        addComponent(kui.components.ScrollableContainer, dataScoll);
+
         currentWindowIndex++;
     }
 
@@ -583,11 +767,29 @@ class KumoUI {
      * Render the current frame
      */
     public static function render() {
+        // Begin time
+        var start = ProfilerTimer.getTime();
+
+        // Reset profiler
+        for (time in componentRenderTimes.keys()) {
+            componentRenderTimes.set(time, 0);
+        }
+
         // Render components
         toRender.sort(function(a, b) return a.getComputedPriority() - b.getComputedPriority());
         for (comp in toRender) {
+            var cStart = ProfilerTimer.getTime();
+
+            // Render
             comp.applyClipToImpl(impl);
             comp.onRender(impl);
+
+            // Profiler
+            var cEnd = ProfilerTimer.getTime();
+            var cType = Type.getClassName(Type.getClass(comp));
+
+            if (!componentRenderTimes.exists(cType)) componentRenderTimes.set(cType, 0);
+            componentRenderTimes.set(cType, componentRenderTimes.get(cType) + cEnd - cStart);
         }
 
         // Scroll container
@@ -614,32 +816,41 @@ class KumoUI {
 
 		if (impl.getLeftMouseDown()) {
             // down event
-			if (mouseWasDown) return;
-            if (currentlyHovered != lastClicked && lastClicked != null) {
-                lastClicked.onMouseClickOutside(impl);
-                lastClicked = null;
+			if (!mouseWasDown) {
+                if (currentlyHovered != lastClicked && lastClicked != null) {
+                    lastClicked.onMouseClickOutside(impl);
+                    lastClicked = null;
+                }
+
+                if (currentlyHovered != null) {
+                    currentlyHovered.onMouseDown(impl);
+                    lastClicked = currentlyHovered;
+                } else {
+                    lastClicked = null;
+                }
+
+                // window focus
+                var window = getHoveredComponentOfType(impl, kui.components.Window, false);
+                if (window != null) focusedWindow = window;
+
+                mouseWasDown = true;
             }
-
-            if (currentlyHovered != null) {
-                currentlyHovered.onMouseDown(impl);
-                lastClicked = currentlyHovered;
-            } else {
-                lastClicked = null;
-            }
-
-            // window focus
-            var window = getHoveredComponentOfType(impl, kui.components.Window, false);
-            if (window != null) focusedWindow = window;
-
-            mouseWasDown = true;
 		} else {
-			if (!mouseWasDown) return;
-            if (lastClicked != null) {
-                lastClicked.onMouseUp(impl);
-                if (lastClicked.pointInside(impl.getMouseX(), impl.getMouseY())) lastClicked.onMouseClick(impl);
+			if (mouseWasDown) {
+                if (lastClicked != null) {
+                    lastClicked.onMouseUp(impl);
+                    if (lastClicked.pointInside(impl.getMouseX(), impl.getMouseY())) lastClicked.onMouseClick(impl);
+                }
+                mouseWasDown = false;
             }
-            mouseWasDown = false;
 		}
+
+        // Clean data pool
+        cleanDataPool();
+
+        // End time
+        var end = ProfilerTimer.getTime();
+        lastFrameTime = end - start;
     }
 
     // Reset
@@ -651,6 +862,11 @@ class KumoUI {
     public static function begin(width: Float, height: Float) {
         // Reset layout
         Layout.reset(width, height);
+
+        // Reset profiler
+        for (time in componentLayoutTimes.keys()) {
+            componentLayoutTimes.set(time, 0);
+        }
 
         // Destroy unnecessary instances
         if (currentComponentIndex < currentComponents.length) {

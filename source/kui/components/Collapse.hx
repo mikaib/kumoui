@@ -21,7 +21,7 @@ class Collapse extends Component {
     }
 
     override function onDataUpdate(data: Dynamic): Dynamic {
-        text.text = (upperCase ? Std.string(data.text).toUpperCase() : data.text) ?? text.text; 
+        text.text = (upperCase ? Std.string(data.text).toUpperCase() : data.text) ?? '';
         text.size = data.size ?? Style.COLLAPSE_TEXT_SIZE;
         text.font = data.font ?? Style.COLLAPSE_TEXT_FONT;  
         expanded = data.expanded ?? expanded;

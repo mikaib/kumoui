@@ -142,8 +142,11 @@ class KeyboardInput {
      * Begin a new frame.
      */
     public static function beginFrame() {
-        lastFrameDownKeys = framePressedKeys.copy();
-        framePressedKeys = [];
+        lastFrameDownKeys.resize(0);
+        for (key in framePressedKeys) {
+            lastFrameDownKeys.push(key);
+        }
+        framePressedKeys.resize(0);
     }
 
     /**

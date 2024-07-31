@@ -1,4 +1,4 @@
-package backend;
+package kui.impl;
 
 import cpp.NativeArray;
 import Raylib.TextureFilter;
@@ -22,28 +22,43 @@ class KumoRaylib extends Base {
     public var fontRegular: Font;
     public var shader: Shader;
 
-    public var src_fs = '
-        #version 330
+    /**
+     * 
+     * precision mediump float;
 
-        in vec2 fragTexCoord;
-        in vec4 fragColor;
-        
-        uniform sampler2D texture0;
-        uniform vec4 colDiffuse;
-        
-        const float softness = 1.0; // 1.0 by default
-        out vec4 finalColor;
-        
-        void main()
-        {
-            float distanceFromOutline = texture(texture0, fragTexCoord).a - 0.5;
-            float distanceChangePerFragment = length(vec2(dFdx(distanceFromOutline), dFdy(distanceFromOutline)));
-            distanceChangePerFragment *= softness;
-    
-            float alpha = smoothstep(-distanceChangePerFragment, distanceChangePerFragment, distanceFromOutline);
-            finalColor = vec4(fragColor.rgb, fragColor.a * alpha);
-        }
-    
+uniform sampler2D u_texture;
+uniform vec4 u_color;
+uniform float u_buffer;
+uniform float u_gamma;
+
+varying vec2 v_texcoord;
+
+void main() {
+    float dist = texture2D(u_texture, v_texcoord).r;
+    float alpha = smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, dist);
+    gl_FragColor = vec4(u_color.rgb, alpha * u_color.a);
+}
+     */
+    public var src_fs = '
+#version 330
+
+in vec2 fragTexCoord;
+in vec4 fragColor;
+
+uniform sampler2D texture0;
+uniform vec4 colDiffuse;
+
+const float u_buffer = 0.50;
+const float u_gamma = 0.15;
+
+out vec4 finalColor;
+
+void main()
+{
+    float dist = texture2D(texture0, fragTexCoord).a;
+    float alpha = smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, dist);
+    finalColor = vec4(fragColor.rgb, alpha * fragColor.a);
+}   
     ';
 
     public var keyMap: Map<Raylib.Keys, kui.Key> = [
@@ -153,7 +168,7 @@ class KumoRaylib extends Base {
         // Set the texture to the font
         font.texture = Raylib.loadTextureFromImage(atlas);
         Raylib.setTextureFilter(font.texture, TextureFilter.BILINEAR);
-        Raylib.genTextureMipmaps(font.texture);
+        //Raylib.genTextureMipmaps(font.texture);
 
         // Finally, unload the image
         Raylib.unloadImage(atlas);
