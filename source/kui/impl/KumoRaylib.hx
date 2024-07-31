@@ -48,15 +48,18 @@ in vec4 fragColor;
 uniform sampler2D texture0;
 uniform vec4 colDiffuse;
 
-const float u_buffer = 0.45;
-const float u_gamma = 0.45;
-
 out vec4 finalColor;
 
 void main()
 {
-    float dist = texture2D(texture0, fragTexCoord).a;
-    float alpha = smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, dist);
+    // float dist = texture2D(texture0, fragTexCoord).a;
+    // float alpha = smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, dist);
+    // finalColor = vec4(fragColor.rgb, alpha * fragColor.a);
+
+    float distOut = texture2D(texture0, fragTexCoord).a - 0.325;
+    float deltaDistFrag = length(vec2(dFdx(distOut), dFdy(distOut)));
+    float alpha = smoothstep(-deltaDistFrag, deltaDistFrag, distOut);
+
     finalColor = vec4(fragColor.rgb, alpha * fragColor.a);
 }   
     ';
