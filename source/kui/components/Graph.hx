@@ -60,7 +60,7 @@ class Graph extends Component {
                     var pointY = y + h - (pointsArray[pointIndex] - minY) * scaleY;
                     impl.drawLine(pointX, y, pointX, y + h, Style.GRAPH_POINT_COLOR, Style.GRAPH_POINTLINE_SIZE);
                     impl.drawCircle(pointX, pointY, Style.GRAPH_POINT_SIZE, Style.GRAPH_POINT_COLOR);
-                    impl.drawText('(${pointsArray[pointIndex]})', pointX + Style.GLOBAL_PADDING, Math.max(pointY - Style.GLOBAL_PADDING - 16, getBoundsY()), Style.GRAPH_POINT_COLOR, 16, REGULAR);
+                    impl.drawText('(${pointsArray[pointIndex]})', pointX + Style.GLOBAL_PADDING, Math.min(Math.max(pointY - 8, getBoundsY()), getBoundsY() + getBoundsWidth()), Style.GRAPH_POINT_COLOR, 16, REGULAR);
                 }
             }
         }
