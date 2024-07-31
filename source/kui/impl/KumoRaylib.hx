@@ -48,8 +48,8 @@ in vec4 fragColor;
 uniform sampler2D texture0;
 uniform vec4 colDiffuse;
 
-const float u_buffer = 0.50;
-const float u_gamma = 0.15;
+const float u_buffer = 0.45;
+const float u_gamma = 0.40;
 
 out vec4 finalColor;
 
