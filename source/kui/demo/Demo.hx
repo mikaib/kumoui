@@ -23,6 +23,7 @@ class Demo {
     // Dev tools
     public static var dev_inspector: Bool = false;
     public static var dev_profiler: Bool = false;
+    public static var dev_editor: Bool = false;
 
     public static function use() {
         KumoUI.beginWindow('Demo', 'demo_window');
@@ -38,6 +39,7 @@ class Demo {
         if (KumoUI.collapse('Development Tools')) {
             dev_inspector = KumoUI.toggle('dev_inspector', 'Inspector');
             dev_profiler = KumoUI.toggle('dev_profiler', 'Profiler');
+            dev_editor = KumoUI.toggle('dev_editor', 'Style Editor');
         }
 
         KumoUI.separator();
@@ -202,7 +204,7 @@ class Demo {
             KumoUI.graph(points_sin, KumoUI.getInnerWidth(), 200);
             KumoUI.graph(points_cos, KumoUI.getInnerWidth(), 200, "With normal label (cos)");
 
-            var sideBySideWidth = (KumoUI.getInnerWidth() - Style.GLOBAL_PADDING) / 2;
+            var sideBySideWidth = (KumoUI.getInnerWidth() - Style.getInstance().GLOBAL_PADDING) / 2;
             KumoUI.graph(points_tan, sideBySideWidth, 100, "With big label (tan)", 24);
             KumoUI.sameLine();
             KumoUI.graph(points_mod, sideBySideWidth, 100, "With bold label (mod)", null, BOLD);
@@ -223,6 +225,7 @@ class Demo {
         KumoUI.endWindow();
 
         if (demo_calc) GraphingCalculator.use();
+        if (dev_editor) StyleEditor.use();
         if (dev_profiler) Profiler.use();
         if (dev_inspector) Inspector.use();
     }

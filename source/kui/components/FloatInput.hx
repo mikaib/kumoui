@@ -24,14 +24,14 @@ class FloatInput extends GenericInput {
             x - 10, y + 5,
             x - 5, y + 10,
             x - 15, y + 10,
-            Style.INPUT_ARROW_COLOR
+            Style.getInstance().INPUT_ARROW_COLOR
         );
 
         impl.drawTrianglePoints(
             x - 10, y + height - 5,
             x - 5, y + height - 10,
             x - 15, y + height - 10,
-            Style.INPUT_ARROW_COLOR
+            Style.getInstance().INPUT_ARROW_COLOR
         );
     }
 

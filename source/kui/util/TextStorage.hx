@@ -22,9 +22,9 @@ class TextStorage {
     }
 
     // Parameters
-    public var color: Int = Style.TEXT_DEFAULT_COLOR;
-    public var size: Int = Style.TEXT_DEFAULT_SIZE;
-    public var font: FontType = Style.TEXT_DEFAULT_FONT;
+    public var color: Int = Style.getInstance().TEXT_DEFAULT_COLOR;
+    public var size: Int = Style.getInstance().TEXT_DEFAULT_SIZE;
+    public var font: FontType = Style.getInstance().TEXT_DEFAULT_FONT;
     public var text: String = '';
 
     // Previous state

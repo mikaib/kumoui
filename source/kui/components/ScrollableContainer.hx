@@ -15,6 +15,9 @@ class ScrollableContainer extends Component {
 
     override function onDataUpdate(data:Dynamic): Dynamic {
         scrollHeightOffset = data.scrollHeightOffset ?? 0;
+        innerOffsetY = data.innerOffsetY ?? innerOffsetY;
+        targetInnerOffsetY = data.targetInnerOffsetY ?? targetInnerOffsetY;
+        scrollHeightOffset = data.scrollHeightOffset ?? scrollHeightOffset;
         return null;
     }
 
@@ -26,15 +29,16 @@ class ScrollableContainer extends Component {
         var parentHeight = KumoUI.getParentHeight();
         var fullHeight = parentHeight - yOff;
         fullWidth = parentWidth - xOff;
+        setSerializable(true);
 
         if (innerContentHeight > fullHeight && fullHeight > 0.1) {
-            setClipRect(pos.x, pos.y, fullWidth - Style.SCROLL_WIDTH - (Style.GLOBAL_PADDING * 2), fullHeight);
+            setClipRect(pos.x, pos.y, fullWidth - Style.getInstance().SCROLL_WIDTH - (Style.getInstance().SCROLL_HPADDING * 2), fullHeight);
             beginParentContainer();
-            setBounds(pos.x, pos.y, fullWidth - Style.SCROLL_WIDTH - (Style.GLOBAL_PADDING * 2), fullHeight);
+            setBounds(pos.x, pos.y, fullWidth - Style.getInstance().SCROLL_WIDTH - (Style.getInstance().SCROLL_HPADDING * 2), fullHeight);
             innerContentStartY = getBoundsY() - innerOffsetY;
             if (targetInnerOffsetY < 0) targetInnerOffsetY = 0;
             if (targetInnerOffsetY > innerContentHeight - getBoundsHeight()) targetInnerOffsetY = innerContentHeight - getBoundsHeight();
-            var da = Std.int(targetInnerOffsetY - innerOffsetY) * (impl.getDeltaTime() * Style.SCROLL_SPEED);
+            var da = Std.int(targetInnerOffsetY - innerOffsetY) * (impl.getDeltaTime() * Style.getInstance().SCROLL_SPEED);
             innerOffsetY += Math.isNaN(da) ? 0 : da;
             enabled = true;
         } else {
@@ -53,21 +57,29 @@ class ScrollableContainer extends Component {
         if (!enabled) return;
 
         // gutter
-        var gutterX = getBoundsX() + getBoundsWidth() + Style.SCROLL_PADDING;
-        var gutterY = getBoundsY() + Style.GLOBAL_PADDING;
-        var gutterH = Math.max(getBoundsHeight() - (Style.GLOBAL_PADDING * 2) - scrollHeightOffset, 0);
-        impl.drawRect(gutterX, gutterY, Style.SCROLL_WIDTH, gutterH, Style.SCROLL_GUTTER_COLOR, Style.SCROLL_GUTTER_ROUNDING);
+        var gutterX = getBoundsX() + getBoundsWidth() + Style.getInstance().SCROLL_HPADDING;
+        var gutterY = getBoundsY() + Style.getInstance().SCROLL_VPADDING;
+        var gutterH = Math.max(getBoundsHeight() - (Style.getInstance().SCROLL_VPADDING * 2) - scrollHeightOffset, 0);
+        impl.drawRect(gutterX, gutterY, Style.getInstance().SCROLL_WIDTH, gutterH, Style.getInstance().SCROLL_GUTTER_COLOR, Style.getInstance().SCROLL_GUTTER_ROUNDING);
         
         // scroll bar
         var percentage = innerOffsetY / innerContentHeight;
         var scrollH = Math.min(gutterH * (getBoundsHeight() / innerContentHeight), gutterH);
         var scrollY = Math.max(gutterY + gutterH * percentage, gutterY);
-        impl.drawRect(gutterX, scrollY, Style.SCROLL_WIDTH, scrollH, Style.SCROLL_BAR_COLOR, Style.SCROLL_BAR_ROUNDING);
+        impl.drawRect(gutterX, scrollY, Style.getInstance().SCROLL_WIDTH, scrollH, Style.getInstance().SCROLL_BAR_COLOR, Style.getInstance().SCROLL_BAR_ROUNDING);
     }
 
     public function scroll(scrollY: Float) {
         if (!enabled) return;
         targetInnerOffsetY -= scrollY;
+    }
+
+    override function onSerialize():Dynamic {
+        return { 
+            innerOffsetY: innerOffsetY,
+            targetInnerOffsetY: targetInnerOffsetY,
+            scrollHeightOffset: scrollHeightOffset
+        };
     }
 
     override function onDebugDraw(impl:Base) impl.drawRectOutline(getBoundsX(), getBoundsY(), getBoundsWidth(), getBoundsHeight(), enabled ? 0xFFFF00 : 0x6E6E00, 2);

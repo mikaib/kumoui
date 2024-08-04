@@ -8,7 +8,7 @@ class TreeCollapseEnd extends Component {
         try {
             var nextPos = Layout.getNextPosition();
             var c = cast (endParentContainer(), TreeCollapse);
-            c.innerContentHeight = nextPos.y - c.getBoundsY() - c.getBoundsHeight() - Style.GLOBAL_PADDING;
+            c.innerContentHeight = nextPos.y - c.getBoundsY() - c.getBoundsHeight() - Style.getInstance().GLOBAL_PADDING;
             Layout.addVerticalSpacing(c.expanded ? c.innerContentHeight : 0);
         } catch(e) KumoUI.debugLog('Could not cast "Component" to "TreeCollapse" in TreeCollapseEnd, did you mismatch endContainer calls?');
     }

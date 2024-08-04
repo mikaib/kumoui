@@ -25,8 +25,8 @@ class InspectorOverlay extends Component {
             'Depth: ${currentComponent.getLastDepth()}'
         ];
 
-        var ty = impl.getMouseX() + Style.GLOBAL_PADDING;
-        var tx = impl.getMouseY() + Style.GLOBAL_PADDING;
+        var ty = impl.getMouseX() + Style.getInstance().GLOBAL_PADDING;
+        var tx = impl.getMouseY() + Style.getInstance().GLOBAL_PADDING;
 
         var longestLine: Float = 0;
         for (line in info) {
@@ -34,9 +34,9 @@ class InspectorOverlay extends Component {
             if (w > longestLine) longestLine = w;
         }
 
-        impl.drawRect(ty, tx, longestLine + Style.GLOBAL_PADDING * 2, info.length * 20 + Style.GLOBAL_PADDING * 2, Style.CONTAINER_BACKGROUND_COLOR, Style.CONTAINER_ROUNDING);
+        impl.drawRect(ty, tx, longestLine + Style.getInstance().GLOBAL_PADDING * 2, info.length * 20 + Style.getInstance().GLOBAL_PADDING * 2, Style.getInstance().CONTAINER_BACKGROUND_COLOR, Style.getInstance().CONTAINER_ROUNDING);
         for (i in 0...info.length) {
-            impl.drawText(info[i], ty + Style.GLOBAL_PADDING, tx + Style.GLOBAL_PADDING + i * 20, 0xffffff, 14);
+            impl.drawText(info[i], ty + Style.getInstance().GLOBAL_PADDING, tx + Style.getInstance().GLOBAL_PADDING + i * 20, 0xffffff, 14);
         }
 
     }
@@ -60,8 +60,8 @@ class InspectorOverlay extends Component {
 class InspectorView extends Component {
     private var showAll: Bool = false;
     private var components: Array<Component> = [];
-    private var color1 = Style.TABLE_ROW_BACKGROUND_COLOR;
-    private var color2 = Style.TABLE_ROW_BACKGROUND_COLOR_ALT;
+    private var color1 = Style.getInstance().TABLE_ROW_BACKGROUND_COLOR;
+    private var color2 = Style.getInstance().TABLE_ROW_BACKGROUND_COLOR_ALT;
     private var hovered: Bool = false;
 
     override function onMouseHoverEnter(impl:Base) {
@@ -79,7 +79,7 @@ class InspectorView extends Component {
         var my = impl.getMouseY();
         var width = getBoundsWidth();
         var itemHeight = 38;
-        var padding = Style.GLOBAL_PADDING;
+        var padding = Style.getInstance().GLOBAL_PADDING;
         var hoveredIndex = -1;
 
         for (i in 0...components.length) {

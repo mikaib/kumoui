@@ -8,10 +8,10 @@ class GenericInput extends Component {
     private var value: TextStorage = new TextStorage();
     private var label: TextStorage = new TextStorage();
     private var placeholder: TextStorage = new TextStorage();
-    private var caretBlinkSpeed: Float = Style.INPUT_CARET_BLINK_SPEED;
+    private var caretBlinkSpeed: Float = Style.getInstance().INPUT_CARET_BLINK_SPEED;
 
-    private var width: Float = Style.INPUT_DEFAULT_WIDTH;
-    private var height: Float = Style.INPUT_DEFAULT_HEIGHT;
+    private var width: Float = Style.getInstance().INPUT_DEFAULT_WIDTH;
+    private var height: Float = Style.getInstance().INPUT_DEFAULT_HEIGHT;
 
     private var interactingWith: Bool = false;
     private var textOffsetX: Float = 0;
@@ -26,7 +26,7 @@ class GenericInput extends Component {
     private var mouseDraggingSelectionSize: Int = 0;
 
     public function new() {
-        placeholder.color = Style.INPUT_PLACEHOLDER_COLOR;
+        placeholder.color = Style.getInstance().INPUT_PLACEHOLDER_COLOR;
     }
 
     override function onMouseClick(impl: Base) {
@@ -56,7 +56,7 @@ class GenericInput extends Component {
 
     public function caretGotoMouse(impl: Base) {
         var mouseX = impl.getMouseX();
-        var clickPositionX = mouseX - getBoundsX() - Style.INPUT_PADDING + textOffsetX;
+        var clickPositionX = mouseX - getBoundsX() - Style.getInstance().INPUT_PADDING + textOffsetX;
 
         var low = 0;
         var high = value.text.length;
@@ -99,28 +99,28 @@ class GenericInput extends Component {
         // value.color = data.color ?? value.color;
 
         label.text = data.label ?? '';
-        label.size = data.labelSize ?? Style.TEXT_DEFAULT_SIZE;
-        label.font = data.labelFont ?? Style.TEXT_DEFAULT_FONT;
-        label.color = data.labelColor ?? Style.TEXT_DEFAULT_COLOR;
+        label.size = data.labelSize ?? Style.getInstance().TEXT_DEFAULT_SIZE;
+        label.font = data.labelFont ?? Style.getInstance().TEXT_DEFAULT_FONT;
+        label.color = data.labelColor ?? Style.getInstance().TEXT_DEFAULT_COLOR;
 
         placeholder.text = data.placeholder ?? '';
         // placeholder.size = data.size ?? placeholder.size;
         // placeholder.font = data.font ?? placeholder.font;
         // placeholder.color = data.placeholderColor ?? placeholder.color;
 
-        width = data.width ?? Style.INPUT_DEFAULT_WIDTH;
-        height = data.height ?? Style.INPUT_DEFAULT_HEIGHT;
+        width = data.width ?? Style.getInstance().INPUT_DEFAULT_WIDTH;
+        height = data.height ?? Style.getInstance().INPUT_DEFAULT_HEIGHT;
 
         return value.text;
     }
 
     override function onRender(impl: Base) {
-        impl.drawRect(getBoundsX(), getBoundsY(), width, height, Style.INPUT_BACKGROUND_COLOR, Style.INPUT_ROUNDING);
+        impl.drawRect(getBoundsX(), getBoundsY(), width, height, Style.getInstance().INPUT_BACKGROUND_COLOR, Style.getInstance().INPUT_ROUNDING);
 
         if (label.text != '') {
             impl.drawText(
                 label.getText(),
-                getBoundsX() + width + Style.GLOBAL_PADDING,
+                getBoundsX() + width + Style.getInstance().GLOBAL_PADDING,
                 getBoundsY() + (getBoundsHeight() - label.getHeight(impl)) / 2,
                 label.getColor(),
                 label.getSize(),
@@ -129,16 +129,16 @@ class GenericInput extends Component {
         }
 
         impl.setClipRect(
-            Math.max(getClipX(), getBoundsX() + Style.INPUT_PADDING),
+            Math.max(getClipX(), getBoundsX() + Style.getInstance().INPUT_PADDING),
             Math.max(getClipY(), getBoundsY()),
-            Math.min(getClipWidth(), width - (Style.INPUT_PADDING * 2)),
+            Math.min(getClipWidth(), width - (Style.getInstance().INPUT_PADDING * 2)),
             Math.min(getClipHeight(), getBoundsHeight())
         );
 
         if (value.text == '') {
             impl.drawText(
                 placeholder.getText(),
-                getBoundsX() + Style.INPUT_PADDING,
+                getBoundsX() + Style.getInstance().INPUT_PADDING,
                 getBoundsY() + (getBoundsHeight() - placeholder.getHeight(impl)) / 2,
                 placeholder.getColor(),
                 placeholder.getSize(),
@@ -147,10 +147,10 @@ class GenericInput extends Component {
         } else {
             var textToRender = value.text;
             var textWidth = impl.measureTextWidth(textToRender, value.getSize(), value.getFont());
-            var renderX = getBoundsX() + Style.INPUT_PADDING - textOffsetX;
+            var renderX = getBoundsX() + Style.getInstance().INPUT_PADDING - textOffsetX;
 
-            if (textWidth < width - (Style.INPUT_PADDING * 2)) {
-                renderX = getBoundsX() + Style.INPUT_PADDING;
+            if (textWidth < width - (Style.getInstance().INPUT_PADDING * 2)) {
+                renderX = getBoundsX() + Style.getInstance().INPUT_PADDING;
             }
 
             impl.drawText(
@@ -167,16 +167,16 @@ class GenericInput extends Component {
             var startPos = Std.int(Math.min(selectionStart, caretPosition));
             var endPos = Std.int(Math.max(selectionStart, caretPosition));
             var startPosText = value.text.substring(0, startPos);
-            var selectionX1 = getBoundsX() + Style.INPUT_PADDING - textOffsetX + impl.measureTextWidth(startPosText, value.getSize(), value.getFont());
+            var selectionX1 = getBoundsX() + Style.getInstance().INPUT_PADDING - textOffsetX + impl.measureTextWidth(startPosText, value.getSize(), value.getFont());
             var endPosText = value.text.substring(0, endPos);
-            var selectionX2 = getBoundsX() + Style.INPUT_PADDING - textOffsetX + impl.measureTextWidth(endPosText, value.getSize(), value.getFont());
+            var selectionX2 = getBoundsX() + Style.getInstance().INPUT_PADDING - textOffsetX + impl.measureTextWidth(endPosText, value.getSize(), value.getFont());
 
             impl.drawRect(
                 selectionX1,
-                getBoundsY() + Style.INPUT_CARET_INNER_PADDING,
+                getBoundsY() + Style.getInstance().INPUT_CARET_INNER_PADDING,
                 selectionX2 - selectionX1,
-                getBoundsHeight() - (Style.INPUT_CARET_INNER_PADDING * 2),
-                Style.INPUT_SELECTION_COLOR
+                getBoundsHeight() - (Style.getInstance().INPUT_CARET_INNER_PADDING * 2),
+                Style.getInstance().INPUT_SELECTION_COLOR
             );
         }
 
@@ -185,11 +185,11 @@ class GenericInput extends Component {
         if (interactingWith && caretState) {
             impl.drawRect(
                 getBoundsX() + caretX,
-                getBoundsY() + Style.INPUT_CARET_INNER_PADDING,
-                Style.INPUT_CARET_THICKNESS,
-                getBoundsHeight() - (Style.INPUT_CARET_INNER_PADDING * 2),
-                Style.INPUT_CARET_COLOR,
-                Style.INPUT_CARET_ROUNDING
+                getBoundsY() + Style.getInstance().INPUT_CARET_INNER_PADDING,
+                Style.getInstance().INPUT_CARET_THICKNESS,
+                getBoundsHeight() - (Style.getInstance().INPUT_CARET_INNER_PADDING * 2),
+                Style.getInstance().INPUT_CARET_COLOR,
+                Style.getInstance().INPUT_CARET_ROUNDING
             );
         }
     }
@@ -199,7 +199,7 @@ class GenericInput extends Component {
         var textWidthBeforeCaret = impl.measureTextWidth(textBeforeCaret, value.getSize(), value.getFont());
 
         var totalTextWidth = impl.measureTextWidth(value.getText(), value.getSize(), value.getFont());
-        var availableWidth = width - 2 * Style.INPUT_PADDING;
+        var availableWidth = width - 2 * Style.getInstance().INPUT_PADDING;
 
         if (textWidthBeforeCaret - textOffsetX > availableWidth) {
             textOffsetX = textWidthBeforeCaret - availableWidth;
@@ -211,7 +211,7 @@ class GenericInput extends Component {
             textOffsetX = Math.max(0, totalTextWidth - availableWidth);
         }
 
-        caretX = textWidthBeforeCaret - textOffsetX + Style.INPUT_PADDING;
+        caretX = textWidthBeforeCaret - textOffsetX + Style.getInstance().INPUT_PADDING;
         resetCaretBlink();
     }
 
@@ -224,7 +224,7 @@ class GenericInput extends Component {
         useLayoutPosition();
 
         if (label.text != '') {
-            setSize(width + Style.GLOBAL_PADDING + label.getWidth(impl), height);
+            setSize(width + Style.getInstance().GLOBAL_PADDING + label.getWidth(impl), height);
         } else {
             setSize(width, height);
         }

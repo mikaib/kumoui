@@ -15,7 +15,7 @@ class Layout {
     private static var _pstack: Stack<{ x: Float, y: Float, width: Float, height: Float }> = new Stack<{ x: Float, y: Float, width: Float, height: Float }>();
     
     // Default state of position stack
-    private static var defaultState: { x: Float, y: Float, width: Float, height: Float } = { x: Style.GLOBAL_PADDING, y: 0, width: 0, height: 0 };
+    private static var defaultState: { x: Float, y: Float, width: Float, height: Float } = { x: Style.getInstance().GLOBAL_PADDING, y: 0, width: 0, height: 0 };
     
     // Sameline parameters
     private static var _sameLine: Bool = false;
@@ -151,14 +151,14 @@ class Layout {
 
         // Do slightly different stuff if we're on the same line
         if (_sameLine) return {
-            x: curr.x + curr.width + Style.GLOBAL_PADDING,
+            x: curr.x + curr.width + Style.getInstance().GLOBAL_PADDING,
             y: curr.y
         }
 
         // Otherwise, return the next line
         return {
             x: curr.x,
-            y: curr.y + curr.height + Style.GLOBAL_PADDING
+            y: curr.y + curr.height + Style.getInstance().GLOBAL_PADDING
         }
     }
 

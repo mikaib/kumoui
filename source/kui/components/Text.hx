@@ -11,9 +11,9 @@ class Text extends Component {
 
     override function onDataUpdate(data: Dynamic): Dynamic {
         text.text = data.text ?? '';
-        text.size = data.size ?? Style.TEXT_DEFAULT_SIZE;
-        text.font = data.font ?? Style.TEXT_DEFAULT_FONT;
-        text.color = data.color ?? Style.TEXT_DEFAULT_COLOR;
+        text.size = data.size ?? Style.getInstance().TEXT_DEFAULT_SIZE;
+        text.font = data.font ?? Style.getInstance().TEXT_DEFAULT_FONT;
+        text.color = data.color ?? Style.getInstance().TEXT_DEFAULT_COLOR;
         return null;
     }
 

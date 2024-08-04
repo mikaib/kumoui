@@ -75,6 +75,7 @@ class KumoUI {
             item.width = null;
             item.height = null;
             item.toggled = null;
+            item.size = null;
         }
 
         dataPoolIndex = 0;
@@ -565,7 +566,7 @@ class KumoUI {
         addComponent(kui.components.Window, data);
 
         var dataScoll = acquireDataPoolItem();
-        dataScoll.scrollHeightOffset = Style.WINDOW_RESIZE_SIZE;
+        dataScoll.scrollHeightOffset = Style.getInstance().WINDOW_RESIZE_SIZE;
         dataScoll.id = 'scrollable.${id}';
         addComponent(kui.components.ScrollableContainer, dataScoll);
 
@@ -696,7 +697,7 @@ class KumoUI {
      * @return The inner width of the parent container
      */
     public static inline function getInnerWidth(): Float {
-        return KumoUI.getParentWidth() - Style.GLOBAL_PADDING;
+        return KumoUI.getParentWidth() - Style.getInstance().GLOBAL_PADDING;
     }
 
     /**
@@ -704,7 +705,7 @@ class KumoUI {
      * @return The inner height of the parent container
      */
     public static inline function getInnerHeight(): Float {
-        return KumoUI.getParentHeight() - Style.GLOBAL_PADDING;
+        return KumoUI.getParentHeight() - Style.getInstance().GLOBAL_PADDING;
     }
 
     // Debug log

@@ -16,14 +16,14 @@ class Graph extends Component {
     override function onMouseHoverExit(impl:Base) hover = false;
 
     override function onRender(impl: Base) {
-        var x = getBoundsX() + Style.GRAPH_INNER_PADDING;
-        var y = getBoundsY() + Style.GRAPH_INNER_PADDING;
-        var w = width - Style.GRAPH_INNER_PADDING * 2;
-        var h = height - Style.GRAPH_INNER_PADDING * 2;
+        var x = getBoundsX() + Style.getInstance().GRAPH_INNER_PADDING;
+        var y = getBoundsY() + Style.getInstance().GRAPH_INNER_PADDING;
+        var w = width - Style.getInstance().GRAPH_INNER_PADDING * 2;
+        var h = height - Style.getInstance().GRAPH_INNER_PADDING * 2;
         var pointsArray = points;
         var numPoints = pointsArray.length;
         
-        impl.drawRect(getBoundsX(), getBoundsY(), width, height, Style.GRAPH_BACKGROUND_COLOR, Style.GRAPH_BACKGROUND_ROUNDING);
+        impl.drawRect(getBoundsX(), getBoundsY(), width, height, Style.getInstance().GRAPH_BACKGROUND_COLOR, Style.getInstance().GRAPH_BACKGROUND_ROUNDING);
 
         if (numPoints > 0) {
             var dx = w / (numPoints - 1);
@@ -46,7 +46,7 @@ class Graph extends Component {
             for (i in 1...numPoints) {
                 var nextX = x + i * dx;
                 var nextY = y + h - (pointsArray[i] - minY) * scaleY;
-                impl.drawLine(prevX, prevY, nextX, nextY, Style.GRAPH_LINE_COLOR, Style.GRAPH_LINE_THICKNESS);
+                impl.drawLine(prevX, prevY, nextX, nextY, Style.getInstance().GRAPH_LINE_COLOR, Style.getInstance().GRAPH_LINE_THICKNESS);
                 prevX = nextX;
                 prevY = nextY;
             }
@@ -58,9 +58,9 @@ class Graph extends Component {
                 if (pointIndex >= 0 && pointIndex < numPoints) {
                     var pointX = x + pointIndex * dx;
                     var pointY = y + h - (pointsArray[pointIndex] - minY) * scaleY;
-                    impl.drawLine(pointX, y, pointX, y + h, Style.GRAPH_POINT_COLOR, Style.GRAPH_POINTLINE_SIZE);
-                    impl.drawCircle(pointX, pointY, Style.GRAPH_POINT_SIZE, Style.GRAPH_POINT_COLOR);
-                    impl.drawText('(${pointsArray[pointIndex]})', pointX + Style.GLOBAL_PADDING, Math.min(Math.max(pointY - 8, getBoundsY()), getBoundsY() + getBoundsWidth()), Style.GRAPH_POINT_COLOR, 16, REGULAR);
+                    impl.drawLine(pointX, y, pointX, y + h, Style.getInstance().GRAPH_POINT_COLOR, Style.getInstance().GRAPH_POINTLINE_SIZE);
+                    impl.drawCircle(pointX, pointY, Style.getInstance().GRAPH_POINT_SIZE, Style.getInstance().GRAPH_POINT_COLOR);
+                    impl.drawText('(${pointsArray[pointIndex]})', pointX + Style.getInstance().GLOBAL_PADDING, Math.min(Math.max(pointY - 8, getBoundsY()), getBoundsY() + getBoundsWidth()), Style.getInstance().GRAPH_POINT_COLOR, 16, REGULAR);
                 }
             }
         }
@@ -74,8 +74,8 @@ class Graph extends Component {
 
     override function onDataUpdate(data: Dynamic): Dynamic {
         label.text = data.text ?? label.text;
-        label.size = data.size ?? Style.TEXT_DEFAULT_SIZE;
-        label.font = data.font ?? Style.TEXT_DEFAULT_FONT;
+        label.size = data.size ?? Style.getInstance().TEXT_DEFAULT_SIZE;
+        label.font = data.font ?? Style.getInstance().TEXT_DEFAULT_FONT;
         points = data.points ?? points;
         width = data.width ?? width;
         height = data.height ?? height;

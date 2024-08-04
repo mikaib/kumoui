@@ -5,9 +5,9 @@ import kui.impl.Base;
 import kui.KumoUI;
 
 class Container extends Component {
-    private var backgroundColor: Int = Style.CONTAINER_BACKGROUND_COLOR;
+    private var backgroundColor: Int = Style.getInstance().CONTAINER_BACKGROUND_COLOR;
     private var containerWidth: Float = 0;
-    private var containerHeight: Float = Style.CONTAINER_DEFAULT_HEIGHT;
+    private var containerHeight: Float = Style.getInstance().CONTAINER_DEFAULT_HEIGHT;
 
     public function new() {}
 
@@ -20,7 +20,7 @@ class Container extends Component {
     }
 
     override function onRender(impl: Base) {
-        impl.drawRect(getBoundsX(), getBoundsY(), containerWidth, containerHeight, backgroundColor, Style.CONTAINER_ROUNDING);
+        impl.drawRect(getBoundsX(), getBoundsY(), containerWidth, containerHeight, backgroundColor, Style.getInstance().CONTAINER_ROUNDING);
     }
 
     override function onLayoutUpdate(impl: Base) {
@@ -35,8 +35,8 @@ class Container extends Component {
     }
 
     override function onDataUpdate(data: Dynamic): Dynamic {
-        backgroundColor = data.backgroundColor ?? Style.CONTAINER_BACKGROUND_COLOR;
-        containerHeight = data.containerHeight ?? Style.CONTAINER_DEFAULT_HEIGHT;
+        backgroundColor = data.backgroundColor ?? Style.getInstance().CONTAINER_BACKGROUND_COLOR;
+        containerHeight = data.containerHeight ?? Style.getInstance().CONTAINER_DEFAULT_HEIGHT;
         containerWidth = data.containerWidth ?? 0;
         return null;
     }

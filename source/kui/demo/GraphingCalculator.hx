@@ -447,7 +447,7 @@ class GraphingCalculator {
                 fn.label = KumoUI.inputText('gc_label_$index', null, null, fn.label, null, null, null, 200);
                 KumoUI.sameLine();
 
-                var nw = KumoUI.inputText('gc_expr_$index', null, null, fn.expr, null, null, null, KumoUI.getInnerWidth() - 200 - Style.GLOBAL_PADDING * 2 - 150);
+                var nw = KumoUI.inputText('gc_expr_$index', null, null, fn.expr, null, null, null, KumoUI.getInnerWidth() - 200 - Style.getInstance().GLOBAL_PADDING * 2 - 150);
                 if (fn.expr != nw) {
                     fn.expr = nw;
                     recalculate();
@@ -529,7 +529,7 @@ class GraphingCalculator {
         var pos = Layout.getNextPosition();
         var parentY = KumoUI.getParentY();
         var parentHeight = KumoUI.getParentHeight();
-        var graphHeight = parentHeight - (pos.y - parentY) - Style.GLOBAL_PADDING * 4;
+        var graphHeight = parentHeight - (pos.y - parentY) - Style.getInstance().GLOBAL_PADDING * 4;
         KumoUI.multiGraph(functions, KumoUI.getInnerWidth(), graphHeight);
 
         KumoUI.endWindow();

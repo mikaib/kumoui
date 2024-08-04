@@ -14,12 +14,12 @@ class MultiGraph extends Component {
     override function onMouseHoverExit(impl:Base) hover = false;
 
     override function onRender(impl: Base) {
-        var x = getBoundsX() + Style.GRAPH_INNER_PADDING;
-        var y = getBoundsY() + Style.GRAPH_INNER_PADDING;
-        var w = width - Style.GRAPH_INNER_PADDING * 2;
-        var h = height - Style.GRAPH_INNER_PADDING * 2;
+        var x = getBoundsX() + Style.getInstance().GRAPH_INNER_PADDING;
+        var y = getBoundsY() + Style.getInstance().GRAPH_INNER_PADDING;
+        var w = width - Style.getInstance().GRAPH_INNER_PADDING * 2;
+        var h = height - Style.getInstance().GRAPH_INNER_PADDING * 2;
     
-        impl.drawRect(getBoundsX(), getBoundsY(), width, height, Style.GRAPH_BACKGROUND_COLOR, Style.GRAPH_BACKGROUND_ROUNDING);
+        impl.drawRect(getBoundsX(), getBoundsY(), width, height, Style.getInstance().GRAPH_BACKGROUND_COLOR, Style.getInstance().GRAPH_BACKGROUND_ROUNDING);
     
         // Calculate overall minY and maxY across all datasets
         var overallMinY = Math.POSITIVE_INFINITY;
@@ -50,7 +50,7 @@ class MultiGraph extends Component {
         var scaleY = h / (overallMaxY - overallMinY);
     
         // Render each dataset
-        var ty = y + Style.GLOBAL_PADDING;
+        var ty = y + Style.getInstance().GLOBAL_PADDING;
         for (pointArray in pointArrays) {
             var points = pointArray.points;
             var numPoints = points.length;
@@ -64,8 +64,8 @@ class MultiGraph extends Component {
                 for (i in 0...numPoints) {
                     var nextX = x + i * dx;
                     var nextY = y + h - (points[i] - overallMinY) * scaleY;
-                    var color = pointArray.color != null ? pointArray.color : Style.GRAPH_LINE_COLOR;
-                    impl.drawLine(prevX, prevY, nextX, nextY, color, Style.GRAPH_LINE_THICKNESS);
+                    var color = pointArray.color != null ? pointArray.color : Style.getInstance().GRAPH_LINE_COLOR;
+                    impl.drawLine(prevX, prevY, nextX, nextY, color, Style.getInstance().GRAPH_LINE_THICKNESS);
                     prevX = nextX;
                     prevY = nextY;
                 }
@@ -78,18 +78,18 @@ class MultiGraph extends Component {
                         var pointX = x + pointIndex * dx;
                         var pointY = y + h - (points[pointIndex] - overallMinY) * scaleY;
                         var pointValue = points[pointIndex];
-                        impl.drawLine(pointX, y, pointX, y + h, Style.GRAPH_POINT_COLOR, Style.GRAPH_POINTLINE_SIZE);
-                        impl.drawCircle(pointX, pointY, Style.GRAPH_POINT_SIZE, Style.GRAPH_POINT_COLOR);
+                        impl.drawLine(pointX, y, pointX, y + h, Style.getInstance().GRAPH_POINT_COLOR, Style.getInstance().GRAPH_POINTLINE_SIZE);
+                        impl.drawCircle(pointX, pointY, Style.getInstance().GRAPH_POINT_SIZE, Style.getInstance().GRAPH_POINT_COLOR);
                         var labelText = pointArray.label != null ? '${pointArray.label} (${pointValue}})' : '(${pointIndex}, ${points[pointIndex]})';
-                        impl.drawText(labelText, pointX + Style.GLOBAL_PADDING, Math.min(Math.max(pointY - 8, getBoundsY()), getBoundsY() + getBoundsWidth()), Style.GRAPH_POINT_COLOR, 16, REGULAR);
+                        impl.drawText(labelText, pointX + Style.getInstance().GLOBAL_PADDING, Math.min(Math.max(pointY - 8, getBoundsY()), getBoundsY() + getBoundsWidth()), Style.getInstance().GRAPH_POINT_COLOR, 16, REGULAR);
                     }
                 }
             }
         }
 
         for (pointArray in pointArrays) {
-            impl.drawCircle(x + Style.GLOBAL_PADDING, ty, 6, pointArray.color != null ? pointArray.color : 0xFFFFFF);
-            impl.drawText(pointArray.label, x + Style.GLOBAL_PADDING + 16, ty - 6, pointArray.color != null ? pointArray.color : 0xFFFFFF, 12, REGULAR);
+            impl.drawCircle(x + Style.getInstance().GLOBAL_PADDING, ty, 6, pointArray.color != null ? pointArray.color : 0xFFFFFF);
+            impl.drawText(pointArray.label, x + Style.getInstance().GLOBAL_PADDING + 16, ty - 6, pointArray.color != null ? pointArray.color : 0xFFFFFF, 12, REGULAR);
             ty += 16;
         }
     }
