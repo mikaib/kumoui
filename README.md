@@ -54,6 +54,16 @@ endWindow(): Void;
 ```
 **Always refer to ``source/kui/demo/Demo.hx`` for reference if you don't know or understand something.**
 
+## Themes
+**Default**
+![Banner](./assets/themes/default.png)
+  
+**Material Dark**
+![Banner](./assets/themes/material-dark.png)
+  
+**Material Light**
+![Banner](./assets/themes/material-light.png)
+  
 ## Creating new components
 To create a new component simply extend the ``Component`` class, or extend an existing component. After which you can overwrite functions from the components. Generally the life-cycle is as follows:
 - ``onDataUpdate``: The component will receive the data that has been used in the call to create the component, and the component will optionally send back a response (example: button sending true when clicked)
