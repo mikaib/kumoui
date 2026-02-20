@@ -163,8 +163,9 @@ class KeyboardInput {
         }
 
         if (newRepeatKey != null && lastRepeatKey != newRepeatKey) {
+            var time = #if js js.lib.Date.now() #else Sys.time() #end;
             lastRepeatKey = newRepeatKey;
-            lastRepeatTime = Sys.time() + initialRepeatTime;
+            lastRepeatTime =  time + initialRepeatTime;
         }
 
         for (key in lastFrameDownKeys) {
@@ -182,7 +183,7 @@ class KeyboardInput {
      * @return Array<Key> The keys that were pressed this frame.
      */
     public static function getPressedKeys(): Array<Key> {
-        var time = Sys.time();
+        var time = #if js js.lib.Date.now() #else Sys.time() #end;
         var pressedKeys: Array<Key> = framePressedKeys.copy().filter(function(key) {
             return lastFrameDownKeys.indexOf(key) == -1;
         });
